@@ -1,0 +1,135 @@
+📄 Código completo (guárdalo como index.html)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Tinder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .app {
+      width: 300px;
+      text-align: center;
+    }
+
+    .card {
+      width: 100%;
+      height: 400px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.5s ease;
+    }
+
+    .card img {
+      width: 100%;
+      height: 70%;
+      object-fit: cover;
+    }
+
+    .info {
+      padding: 10px;
+    }
+
+    .buttons {
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .like {
+      background: #28a745;
+      color: white;
+    }
+
+    .nope {
+      background: #dc3545;
+      color: white;
+    }
+
+    .swipe-left {
+      transform: translateX(-400px) rotate(-20deg);
+      opacity: 0;
+    }
+
+    .swipe-right {
+      transform: translateX(400px) rotate(20deg);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="card" id="card">
+    <img id="photo" src="https://i.pravatar.cc/300?img=1">
+    <div class="info">
+      <h2 id="name">Ana, 25</h2>
+      <p id="bio">Le gusta viajar y la música 🎶</p>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button class="nope" onclick="swipe('left')">❌</button>
+    <button class="like" onclick="swipe('right')">❤️</button>
+  </div>
+</div>
+
+<script>
+  const profiles = [
+    {
+      name: "Ana, 25",
+      bio: "Le gusta viajar y la música 🎶",
+      img: "https://i.pravatar.cc/300?img=1"
+    },
+    {
+      name: "Carlos, 28",
+      bio: "Fitness y negocios 💼",
+      img: "https://i.pravatar.cc/300?img=2"
+    },
+    {
+      name: "Laura, 23",
+      bio: "Amante de los animales 🐶",
+      img: "https://i.pravatar.cc/300?img=3"
+    }
+  ];
+
+  let index = 0;
+
+  function swipe(direction) {
+    const card = document.getElementById("card");
+
+    card.classList.add(direction === "left" ? "swipe-left" : "swipe-right");
+
+    setTimeout(() => {
+      index = (index + 1) % profiles.length;
+      loadProfile();
+      card.classList.remove("swipe-left", "swipe-right");
+    }, 500);
+  }
+
+  function loadProfile() {
+    document.getElementById("name").innerText = profiles[index].name;
+    document.getElementById("bio").innerText = profiles[index].bio;
+    document.getElementById("photo").src = profiles[index].img;
+  }
+</script>
+
+</body>
+</html>
