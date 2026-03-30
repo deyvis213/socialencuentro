@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bind - Conecta, conoce y encuentra tu match ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #fd3b6f;
+    --pink2: #ff6b6b;
+    --orange: #ff7f50;
+    --grad: linear-gradient(135deg, #fd3b6f, #ff7f50);
+    --dark: #1a1a2e;
+    --card: #ffffff;
+    --text: #333;
+    --gray: #888;
+    --light: #f8f8f8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Nunito',sans-serif; background:#f0f0f0; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+
+  /* PHONE FRAME */
+  .phone {
+    width:390px; height:844px; background:#fff; border-radius:45px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.25), inset 0 0 0 2px #ddd;
+    overflow:hidden; position:relative;
+  }
+
+  /* SCREENS */
+  .screen { width:100%; height:100%; position:absolute; top:0; left:0; display:none; flex-direction:column; }
+  .screen.active { display:flex; }
+
+  /* ===== SCREEN 0: SPLASH ===== */
+  #splash {
+    background: linear-gradient(160deg, #fd3b6f 0%, #ff7f50 100%);
+    justify-content:center; align-items:center; flex-direction:column; gap:20px;
+  }
+  .splash-logo { text-align:center; }
+  .splash-logo svg { width:100px; height:100px; }
+  .splash-logo h1 { font-family:'Pacifico',cursive; font-size:52px; color:#fff; margin-top:10px; }
+  .splash-tagline { color:rgba(255,255,255,0.9); font-size:17px; font-weight:600; }
+  .splash-girl { width:180px; height:180px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,0.5); margin:10px 0; overflow:hidden; }
+  .splash-girl svg { width:100%; height:100%; }
+  .btn-entrar {
+    background:#fff; color:var(--pink); font-size:18px; font-weight:800;
+    border:none; border-radius:30px; padding:14px 60px; cursor:pointer;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); margin-top:10px;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .btn-entrar:hover { transform:scale(1.05); box-shadow:0 12px 30px rgba(0,0,0,0.3); }
+
+  /* ===== SCREEN 1: LOGIN/SIGNUP ===== */
+  #login {
+    background: linear-gradient(160deg, #fd3b6f 0%, #ff7f50 60%, #fff 60%);
+    flex-direction:column;
+  }
+  .login-top { padding:50px 30px 30px; text-align:center; }
+  .login-top h1 { font-family:'Pacifico',cursive; font-size:44px; color:#fff; }
+  .login-top p { color:rgba(255,255,255,0.85); font-size:13px; margin-top:8px; }
+  .login-card {
+    background:#fff; flex:1; border-radius:35px 35px 0 0; margin-top:-10px;
+    padding:35px 30px; display:flex; flex-direction:column; gap:14px;
+    box-shadow:0 -10px 40px rgba(0,0,0,0.1);
+  }
+  .login-card h2 { font-size:22px; font-weight:800; color:var(--dark); text-align:center; }
+  .terms { font-size:11px; color:var(--gray); text-align:center; margin-bottom:5px; }
+  .terms span { color:var(--pink); cursor:pointer; }
+  .btn-social {
+    display:flex; align-items:center; gap:12px; padding:13px 20px;
+    border-radius:25px; border:2px solid #eee; background:#fff;
+    font-size:14px; font-weight:700; color:var(--dark); cursor:pointer;
+    transition:border-color .2s, background .2s;
+  }
+  .btn-social:hover { border-color:var(--pink); background:#fff5f7; }
+  .btn-social img, .btn-social svg { width:22px; height:22px; }
+  .divider { display:flex; align-items:center; gap:10px; color:var(--gray); font-size:12px; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:#eee; }
+  .btn-signin { background:var(--grad); color:#fff; border:none; border-radius:25px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; width:100%; transition:opacity .2s; }
+  .btn-signin:hover { opacity:.9; }
+
+  /* ===== SCREEN 2: MAIN SWIPE ===== */
+  #main { background:#f5f5f5; flex-direction:column; }
+  .main-header {
+    background:#fff; padding:14px 20px 10px; display:flex; align-items:center;
+    justify-content:space-between; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+    position:relative; z-index:10;
+  }
+  .main-header h1 { font-family:'Pacifico',cursive; font-size:26px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .header-icon { width:36px; height:36px; background:var(--grad); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; font-size:16px; }
+
+  .cards-area { flex:1; position:relative; padding:15px; overflow:hidden; }
+  .swipe-card {
+    position:absolute; width:calc(100% - 30px); height:100%;
+    border-radius:25px; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.15);
+    transition:transform .3s; cursor:grab;
+  }
+  .swipe-card:nth-child(2) { transform:scale(0.95) translateY(10px); z-index:1; }
+  .swipe-card:nth-child(3) { transform:scale(0.90) translateY(20px); z-index:0; }
+  .swipe-card:first-child { z-index:2; }
+  .card-img { width:100%; height:100%; object-fit:cover; }
+  .card-gradient { position:absolute; bottom:0; left:0; right:0; height:50%; background:linear-gradient(transparent, rgba(0,0,0,0.8)); }
+  .card-info { position:absolute; bottom:90px; left:20px; color:#fff; }
+  .card-info h3 { font-size:26px; font-weight:800; }
+  .card-info p { font-size:14px; opacity:.85; }
+  .card-verified { display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,0.2); backdrop-filter:blur(5px); border-radius:20px; padding:3px 10px; font-size:12px; margin-top:5px; }
+
+  .action-btns {
+    display:flex; justify-content:center; align-items:center; gap:15px;
+    padding:15px 20px 20px; background:#fff;
+    box-shadow:0 -2px 15px rgba(0,0,0,0.07);
+  }
+  .action-btn {
+    width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
+    font-size:22px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.12); transition:transform .2s, box-shadow .2s;
+  }
+  .action-btn:hover { transform:scale(1.12); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+  .btn-skip  { background:#fff; color:#f4a261; width:50px; height:50px; }
+  .btn-nope  { background:#fff; color:#fd3b6f; width:62px; height:62px; font-size:26px; }
+  .btn-star  { background:#fff; color:#a29bfe; }
+  .btn-like  { background:var(--grad); color:#fff; width:62px; height:62px; font-size:26px; }
+  .btn-boost { background:#fff; color:#f59e0b; }
+
+  /* ===== SCREEN 3: NAV SCREEN ===== */
+  #nav-screen { background:#f5f5f5; flex-direction:column; }
+  .nav-header {
+    background:#fff; padding:14px 20px 10px; display:flex; align-items:center;
+    justify-content:space-between; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  }
+  .nav-header h1 { font-family:'Pacifico',cursive; font-size:26px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .nav-tabs {
+    display:flex; overflow-x:auto; background:#fff; padding:0 10px;
+    border-bottom:1px solid #eee; gap:0; scrollbar-width:none;
+  }
+  .nav-tabs::-webkit-scrollbar { display:none; }
+  .nav-tab {
+    flex-shrink:0; padding:13px 14px; font-size:12.5px; font-weight:700;
+    color:var(--gray); cursor:pointer; border-bottom:3px solid transparent;
+    transition:color .2s, border-color .2s; white-space:nowrap;
+  }
+  .nav-tab.active { color:var(--pink); border-bottom-color:var(--pink); }
+  .tab-content { flex:1; overflow-y:auto; }
+
+  /* Tab panels */
+  .tab-panel { display:none; padding:20px; }
+  .tab-panel.active { display:block; }
+
+  /* Inicio */
+  .inicio-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .inicio-card { background:#fff; border-radius:18px; padding:16px; box-shadow:0 3px 12px rgba(0,0,0,0.07); text-align:center; cursor:pointer; }
+  .inicio-card .ic-icon { font-size:28px; margin-bottom:8px; }
+  .inicio-card h4 { font-size:13px; font-weight:700; color:var(--dark); }
+  .inicio-card p { font-size:11px; color:var(--gray); margin-top:3px; }
+
+  /* Perfil */
+  .profile-photos { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+  .photo-slot {
+    aspect-ratio:1; background:#f0f0f0; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; color:#ccc; cursor:pointer; border:2px dashed #ddd;
+    transition:border-color .2s;
+  }
+  .photo-slot:hover { border-color:var(--pink); color:var(--pink); }
+  .preview-btn { background:var(--grad); color:#fff; border:none; border-radius:25px; padding:13px; width:100%; font-size:15px; font-weight:800; cursor:pointer; }
+
+  /* Seguridad */
+  .security-content { background:#fff; border-radius:20px; padding:20px; box-shadow:0 3px 12px rgba(0,0,0,0.07); }
+  .security-content h3 { font-size:16px; font-weight:800; color:var(--dark); margin-bottom:15px; display:flex; align-items:center; gap:8px; }
+  .sec-section { margin-bottom:18px; }
+  .sec-section h4 { font-size:13px; font-weight:800; color:var(--pink); margin-bottom:10px; }
+  .sec-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:8px; }
+  .sec-item span { font-size:18px; }
+  .sec-item p { font-size:12.5px; color:var(--text); line-height:1.5; }
+
+  /* Ajuste */
+  .ajuste-plans { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+  .plan-card {
+    border-radius:18px; padding:16px 20px; display:flex; align-items:center;
+    justify-content:space-between; cursor:pointer; box-shadow:0 3px 12px rgba(0,0,0,0.1);
+    transition:transform .2s;
+  }
+  .plan-card:hover { transform:scale(1.02); }
+  .plan-platinum { background:linear-gradient(135deg,#1a1a2e,#16213e); color:#fff; }
+  .plan-gold     { background:linear-gradient(135deg,#f59e0b,#fbbf24); color:#fff; }
+  .plan-limited  { background:linear-gradient(135deg,#fd3b6f,#ff7f50); color:#fff; }
+  .plan-card h4  { font-size:16px; font-weight:800; }
+  .plan-card p   { font-size:12px; opacity:.85; margin-top:3px; }
+  .plan-badge    { background:rgba(255,255,255,0.25); border-radius:20px; padding:4px 12px; font-size:12px; font-weight:700; }
+
+  .settings-list { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,0.07); }
+  .setting-item {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:15px 18px; border-bottom:1px solid #f5f5f5; cursor:pointer;
+  }
+  .setting-item:last-child { border-bottom:none; }
+  .setting-item .si-left { display:flex; align-items:center; gap:12px; }
+  .setting-item .si-icon { width:36px; height:36px; background:#fff5f7; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .setting-item h4 { font-size:14px; font-weight:700; color:var(--dark); }
+  .setting-item .si-arrow { color:var(--gray); font-size:16px; }
+  .toggle {
+    width:44px; height:24px; background:#eee; border-radius:12px; position:relative;
+    cursor:pointer; transition:background .3s;
+  }
+  .toggle.on { background:var(--pink); }
+  .toggle::after {
+    content:''; position:absolute; top:2px; left:2px; width:20px; height:20px;
+    background:#fff; border-radius:50%; transition:left .3s; box-shadow:0 2px 5px rgba(0,0,0,0.2);
+  }
+  .toggle.on::after { left:22px; }
+
+  /* Idioma */
+  .lang-list { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,0.07); }
+  .lang-item {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 18px; border-bottom:1px solid #f5f5f5; cursor:pointer;
+    transition:background .2s;
+  }
+  .lang-item:hover { background:#fff5f7; }
+  .lang-item:last-child { border-bottom:none; }
+  .lang-item .lang-name { font-size:13.5px; font-weight:700; color:var(--dark); }
+  .lang-item .lang-native { font-size:12px; color:var(--gray); }
+  .lang-item.selected .lang-name { color:var(--pink); }
+  .lang-check { color:var(--pink); font-size:16px; display:none; }
+  .lang-item.selected .lang-check { display:block; }
+
+  /* Iniciar sesión tab */
+  .login-tab-content { max-width:100%; }
+  .login-form { background:#fff; border-radius:18px; padding:25px; box-shadow:0 3px 12px rgba(0,0,0,0.07); }
+  .form-group { margin-bottom:15px; }
+  .form-group label { font-size:13px; font-weight:700; color:var(--dark); margin-bottom:6px; display:block; }
+  .form-group input {
+    width:100%; padding:12px 16px; border-radius:14px; border:2px solid #eee;
+    font-size:14px; font-family:'Nunito',sans-serif; outline:none;
+    transition:border-color .2s;
+  }
+  .form-group input:focus { border-color:var(--pink); }
+
+  /* CLOSE BTN */
+  .close-btn {
+    background:none; border:2px solid #eee; border-radius:20px; padding:6px 14px;
+    font-size:12px; font-weight:700; color:var(--gray); cursor:pointer;
+    transition:border-color .2s, color .2s;
+  }
+  .close-btn:hover { border-color:var(--pink); color:var(--pink); }
+
+  /* PROFILES for avatar generation */
+  .avatar { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:80px; }
+
+  /* Scrollbar */
+  .tab-content { scrollbar-width:thin; scrollbar-color:var(--pink) #f0f0f0; }
+  .tab-content::-webkit-scrollbar { width:4px; }
+  .tab-content::-webkit-scrollbar-thumb { background:var(--pink); border-radius:4px; }
+
+  /* MATCH OVERLAY */
+  .match-overlay {
+    position:absolute; inset:0; background:rgba(0,0,0,0.85); z-index:100;
+    display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+  }
+  .match-overlay.show { display:flex; }
+  .match-title { font-family:'Pacifico',cursive; font-size:38px; color:#fff; animation:bounce .5s ease; }
+  .match-emoji { font-size:60px; animation:pulse 1s infinite; }
+  @keyframes bounce { 0%{transform:scale(0)} 80%{transform:scale(1.1)} 100%{transform:scale(1)} }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  .match-close { background:var(--grad); color:#fff; border:none; border-radius:25px; padding:13px 40px; font-size:15px; font-weight:800; cursor:pointer; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div class="screen active" id="splash">
+    <div class="splash-logo">
+      <!-- Girl logo SVG -->
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="skinGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#f5c5a3"/>
+            <stop offset="100%" stop-color="#e8a87c"/>
+          </radialGradient>
+          <radialGradient id="hairGrad" cx="50%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#3d1c00"/>
+            <stop offset="100%" stop-color="#1a0800"/>
+          </radialGradient>
+        </defs>
+        <!-- Hair back -->
+        <ellipse cx="50" cy="38" rx="28" ry="32" fill="url(#hairGrad)"/>
+        <!-- Face -->
+        <ellipse cx="50" cy="42" rx="22" ry="25" fill="url(#skinGrad)"/>
+        <!-- Hair front -->
+        <ellipse cx="50" cy="18" rx="26" ry="14" fill="url(#hairGrad)"/>
+        <!-- Eyes -->
+        <ellipse cx="42" cy="40" rx="4" ry="4.5" fill="#fff"/>
+        <ellipse cx="58" cy="40" rx="4" ry="4.5" fill="#fff"/>
+        <circle cx="43" cy="41" r="2.5" fill="#3d1c00"/>
+        <circle cx="59" cy="41" r="2.5" fill="#3d1c00"/>
+        <circle cx="44" cy="40" r="0.8" fill="#fff"/>
+        <circle cx="60" cy="40" r="0.8" fill="#fff"/>
+        <!-- Eyebrows -->
+        <path d="M38 35 Q42 33 46 35" stroke="#3d1c00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M54 35 Q58 33 62 35" stroke="#3d1c00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Nose -->
+        <ellipse cx="50" cy="49" rx="3" ry="2" fill="#d4956a"/>
+        <!-- Smile -->
+        <path d="M43 55 Q50 61 57 55" stroke="#c97d5a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- Lips -->
+        <path d="M44 55 Q50 58 56 55" fill="#e8607a" stroke="none"/>
+        <!-- Cheeks -->
+        <ellipse cx="37" cy="51" rx="5" ry="3" fill="rgba(255,150,150,0.3)"/>
+        <ellipse cx="63" cy="51" rx="5" ry="3" fill="rgba(255,150,150,0.3)"/>
+        <!-- Earrings -->
+        <circle cx="27" cy="48" r="3" fill="#fd3b6f"/>
+        <circle cx="73" cy="48" r="3" fill="#fd3b6f"/>
+        <!-- Shoulders / body -->
+        <path d="M20 85 Q20 70 50 68 Q80 70 80 85" fill="#c9a4e0"/>
+        <!-- Heart -->
+        <path d="M47 75 C47 73 44 71 44 74 C44 77 47 79 50 81 C53 79 56 77 56 74 C56 71 53 73 53 75 C53 73 50 72 50 72 C50 72 47 73 47 75Z" fill="#fd3b6f"/>
+      </svg>
+      <h1>Bind</h1>
+    </div>
+    <p class="splash-tagline">Conecta, conoce y encuentra tu match ❤️</p>
+    <button class="btn-entrar" onclick="showScreen('login')">Entrar</button>
+  </div>
+
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div class="screen" id="login">
+    <div class="login-top">
+      <h1>Bind</h1>
+      <p>Conecta, conoce y encuentra tu match ❤️</p>
+    </div>
+    <div class="login-card">
+      <h2>Crear cuenta</h2>
+      <p class="terms">Al tocar "Crear cuenta", aceptas nuestros <span>términos</span>.</p>
+      <button class="btn-social">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Iniciar con Google
+      </button>
+      <button class="btn-social">
+        <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Iniciar con Facebook
+      </button>
+      <button class="btn-social">
+        <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Iniciar con teléfono
+      </button>
+      <div class="divider">o</div>
+      <button class="btn-signin" onclick="showScreen('main')">Iniciar sesión</button>
+    </div>
+  </div>
+
+  <!-- ===== MAIN SWIPE SCREEN ===== -->
+  <div class="screen" id="main">
+    <div class="main-header">
+      <div style="font-size:20px;cursor:pointer" onclick="showScreen('nav-screen')">☰</div>
+      <h1>Bind</h1>
+      <div class="header-icon" onclick="showScreen('nav-screen')">💬</div>
+    </div>
+    <div class="cards-area" id="cardsArea">
+      <!-- Cards injected by JS -->
+    </div>
+    <div class="action-btns">
+      <button class="action-btn btn-skip" onclick="swipeAction('skip')">🔄</button>
+      <button class="action-btn btn-nope" onclick="swipeAction('nope')">✖</button>
+      <button class="action-btn btn-star" onclick="swipeAction('star')">⭐</button>
+      <button class="action-btn btn-like" onclick="swipeAction('like')">❤</button>
+      <button class="action-btn btn-boost" onclick="swipeAction('boost')">⚡</button>
+    </div>
+    <!-- Match overlay -->
+    <div class="match-overlay" id="matchOverlay">
+      <div class="match-emoji">💘</div>
+      <div class="match-title">¡Es un Match!</div>
+      <p style="color:rgba(255,255,255,0.8);font-size:15px">¡Les gustaron mutuamente!</p>
+      <button class="match-close" onclick="closeMatch()">Enviar mensaje</button>
+      <button style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px;font-family:Nunito,sans-serif" onclick="closeMatch()">Seguir explorando</button>
+    </div>
+  </div>
+
+  <!-- ===== NAV SCREEN ===== -->
+  <div class="screen" id="nav-screen">
+    <div class="nav-header">
+      <h1>Bind</h1>
+      <button class="close-btn" onclick="showScreen('main')">✕ Cerrar</button>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="showTab('tab-inicio',this)">Inicio</div>
+      <div class="nav-tab" onclick="showTab('tab-login',this)">Iniciar sesión</div>
+      <div class="nav-tab" onclick="showTab('tab-perfil',this)">Perfil 👤</div>
+      <div class="nav-tab" onclick="showTab('tab-seguridad',this)">Seguridad</div>
+      <div class="nav-tab" onclick="showTab('tab-ajuste',this)">Ajuste</div>
+      <div class="nav-tab" onclick="showTab('tab-idioma',this)">Idioma 🌐</div>
+    </div>
+    <div class="tab-content">
+
+      <!-- INICIO -->
+      <div class="tab-panel active" id="tab-inicio">
+        <h3 style="font-size:18px;font-weight:800;color:var(--dark);margin-bottom:15px">¡Bienvenido a Bind! ❤️</h3>
+        <div class="inicio-grid">
+          <div class="inicio-card" onclick="showScreen('main')">
+            <div class="ic-icon">💫</div>
+            <h4>Explorar</h4>
+            <p>Descubre nuevos perfiles</p>
+          </div>
+          <div class="inicio-card">
+            <div class="ic-icon">💬</div>
+            <h4>Mensajes</h4>
+            <p>Tus matches esperan</p>
+          </div>
+          <div class="inicio-card">
+            <div class="ic-icon">🔥</div>
+            <h4>Populares</h4>
+            <p>Los más activos hoy</p>
+          </div>
+          <div class="inicio-card">
+            <div class="ic-icon">⭐</div>
+            <h4>Super Likes</h4>
+            <p>Quién te dio super like</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGIN TAB -->
+      <div class="tab-panel" id="tab-login">
+        <div class="login-form">
+          <h3 style="font-size:18px;font-weight:800;color:var(--dark);margin-bottom:20px">Iniciar sesión</h3>
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" placeholder="tu@correo.com">
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" placeholder="••••••••">
+          </div>
+          <button class="btn-signin" style="margin-top:5px" onclick="showScreen('main')">Entrar</button>
+        </div>
+      </div>
+
+      <!-- PERFIL TAB -->
+      <div class="tab-panel" id="tab-perfil">
+        <h3 style="font-size:18px;font-weight:800;color:var(--dark);margin-bottom:15px">Tu perfil</h3>
+        <div class="profile-photos" id="profileSlots">
+          <!-- 9 slots injected by JS -->
+        </div>
+        <button class="preview-btn">Vista previa del perfil</button>
+      </div>
+
+      <!-- SEGURIDAD TAB -->
+      <div class="tab-panel" id="tab-seguridad">
+        <div class="security-content">
+          <h3>🛡️ CENTRO DE SEGURIDAD</h3>
+          <div class="sec-section">
+            <h4>🛡️ Herramientas de Protección</h4>
+            <div class="sec-item"><span>🚫</span><p>Prohíben armas en las fotos de perfil.</p></div>
+            <div class="sec-item"><span>🤝</span><p>Tolerancia cero al discurso de odio y acoso.</p></div>
+            <div class="sec-item"><span>📞</span><p>Videollamadas y llamadas dentro de la app.</p></div>
+            <div class="sec-item"><span>📸</span><p>Verificación por foto para confirmar identidad.</p></div>
+            <div class="sec-item"><span>👁️</span><p>Private Detector: desenfoque de imágenes explícitas.</p></div>
+            <div class="sec-item"><span>🤖</span><p>Deception Detector™: IA que previene estafas.</p></div>
+          </div>
+          <div class="sec-section">
+            <h4>📲 Control de tu experiencia</h4>
+            <div class="sec-item"><span>🔹</span><p>Definir quién puede enviarte mensajes.</p></div>
+            <div class="sec-item"><span>🔹</span><p>Elegir si otros ven tu estado en línea.</p></div>
+            <div class="sec-item"><span>📌</span><p>Detectar y protegerte contra acoso online.</p></div>
+            <div class="sec-item"><span>📌</span><p>Evitar difusión de contenido privado (bloqueo capturas).</p></div>
+          </div>
+          <div class="sec-section">
+            <h4>📍 Consejos</h4>
+            <div class="sec-item"><span>❌</span><p>No compartas contraseñas ni datos financieros.</p></div>
+            <div class="sec-item"><span>❌</span><p>No des tu dirección o ubicación específica.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AJUSTE TAB -->
+      <div class="tab-panel" id="tab-ajuste">
+        <h3 style="font-size:18px;font-weight:800;color:var(--dark);margin-bottom:15px">⚙️ CONFIGURACIÓN</h3>
+        <div class="ajuste-plans">
+          <div class="plan-card plan-platinum">
+            <div><h4>Bind Platinum</h4><p>Acceso total sin límites</p></div>
+            <div class="plan-badge">Premium</div>
+          </div>
+          <div class="plan-card plan-gold">
+            <div><h4>Bind Gold</h4><p>Más matches, más poder</p></div>
+            <div class="plan-badge">Popular</div>
+          </div>
+          <div class="plan-card plan-limited">
+            <div><h4>Bind Limitado</h4><p>Oferta por tiempo limitado</p></div>
+            <div class="plan-badge">🔥 Oferta</div>
+          </div>
+        </div>
+        <div class="settings-list">
+          <div class="setting-item">
+            <div class="si-left">
+              <div class="si-icon">⚙️</div>
+              <h4>Ajustes de cuenta</h4>
+            </div>
+            <span class="si-arrow">›</span>
+          </div>
+          <div class="setting-item">
+            <div class="si-left">
+              <div class="si-icon">🔔</div>
+              <h4>Notificaciones</h4>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-item">
+            <div class="si-left">
+              <div class="si-icon">📍</div>
+              <h4>Ubicación activa</h4>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IDIOMA TAB -->
+      <div class="tab-panel" id="tab-idioma">
+        <h3 style="font-size:18px;font-weight:800;color:var(--dark);margin-bottom:4px">Idioma 🌐</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:15px">Seleccionar Idioma</p>
+        <div class="lang-list" id="langList">
+          <!-- injected by JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== PROFILES =====
+const profiles = [
+  // 10 Women
+  { name:"Valeria", age:24, city:"Bogotá", emoji:"👩🏽", color:"#f8b4c8", verified:true, gender:"f" },
+  { name:"Camila",  age:22, city:"Medellín", emoji:"👩🏻", color:"#f5cba7", verified:true, gender:"f" },
+  { name:"Sofía",   age:26, city:"Lima", emoji:"🧕🏽", color:"#d5a8f0", verified:false, gender:"f" },
+  { name:"Isabella",age:23, city:"Ciudad de México", emoji:"👩🏼", color:"#a8d8f0", verified:true, gender:"f" },
+  { name:"Valentina",age:25, city:"Santiago", emoji:"👩🏽‍🦱", color:"#f9c8d0", verified:true, gender:"f" },
+  { name:"Mariana", age:21, city:"Buenos Aires", emoji:"👩🏻‍🦳", color:"#c8f0d5", verified:false, gender:"f" },
+  { name:"Daniela", age:27, city:"Caracas", emoji:"👩🏾", color:"#f0d5a8", verified:true, gender:"f" },
+  { name:"Alejandra",age:24, city:"Quito", emoji:"👩🏽‍🦲", color:"#f0c8f8", verified:false, gender:"f" },
+  { name:"Fernanda",age:23, city:"Montevideo", emoji:"👩🏼‍🦱", color:"#c8e8f0", verified:true, gender:"f" },
+  { name:"Luciana", age:26, city:"La Paz", emoji:"👱🏽‍♀️", color:"#f8e4c8", verified:true, gender:"f" },
+  // 5 Guys
+  { name:"Sebastián",age:27, city:"Bogotá", emoji:"👨🏽", color:"#a8d5f0", verified:true, gender:"m" },
+  { name:"Mateo",   age:25, city:"Medellín", emoji:"👨🏻", color:"#d5f0a8", verified:false, gender:"m" },
+  { name:"Andrés",  age:28, city:"Lima", emoji:"👨🏾", color:"#f0d5a8", verified:true, gender:"m" },
+  { name:"Diego",   age:24, city:"Ciudad de México", emoji:"👨🏼", color:"#a8f0d5", verified:true, gender:"m" },
+  { name:"Julián",  age:26, city:"Santiago", emoji:"🧔🏽", color:"#d5a8f0", verified:false, gender:"m" },
+];
+
+let currentIdx = 0;
+
+function buildCards(){
+  const area = document.getElementById('cardsArea');
+  area.innerHTML = '';
+  const show = profiles.slice(currentIdx, currentIdx+3);
+  show.reverse().forEach((p,i) => {
+    const card = document.createElement('div');
+    card.className = 'swipe-card';
+    card.style.background = `linear-gradient(135deg, ${p.color}, ${adjustColor(p.color)})`;
+    const cls = show.length-1-i === 0 ? '' : show.length-1-i === 1 ? 'style="transform:scale(0.95) translateY(10px);z-index:1"' : 'style="transform:scale(0.90) translateY(20px);z-index:0"';
+    card.innerHTML = `
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:130px;padding-bottom:100px">${p.emoji}</div>
+      <div class="card-gradient"></div>
+      <div class="card-info">
+        <h3>${p.name}, ${p.age}</h3>
+        <p>📍 ${p.city}</p>
+        ${p.verified ? '<div class="card-verified">✔ Verificada/o</div>' : ''}
+      </div>
+    `;
+    area.appendChild(card);
+  });
+}
+
+function adjustColor(hex){
+  // darken slightly
+  return hex.replace(/^#/, '') === hex ? hex : '#c8a090';
+}
+
+function swipeAction(type){
+  if(type === 'like' && Math.random() > 0.5){
+    document.getElementById('matchOverlay').classList.add('show');
+  }
+  currentIdx = (currentIdx+1) % profiles.length;
+  buildCards();
+}
+function closeMatch(){ document.getElementById('matchOverlay').classList.remove('show'); }
+
+// ===== SCREENS =====
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== TABS =====
+function showTab(id, el){
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ===== PROFILE SLOTS =====
+function buildProfileSlots(){
+  const grid = document.getElementById('profileSlots');
+  for(let i=0;i<9;i++){
+    const slot = document.createElement('div');
+    slot.className = 'photo-slot';
+    slot.innerHTML = '+';
+    slot.onclick = () => { slot.innerHTML = ['🏔️','🏖️','🌆','🎉','🌿','🎭','🏋️','🎸','🌺'][i]; slot.style.fontSize='36px'; slot.style.border='2px solid var(--pink)'; slot.style.background='#fff5f7'; };
+    grid.appendChild(slot);
+  }
+}
+
+// ===== LANGUAGES =====
+const languages = [
+  ["Afrikáans","Afrikaans"],["Albanés","Shqip"],["Alemán","Deutsch"],["Árabe","العربية"],
+  ["Armenio","Հայերեն"],["Bengalí","বাংলা"],["Búlgaro","Български"],["Catalán","Català"],
+  ["Checo","Čeština"],["Chino","中文"],["Coreano","한국어"],["Danés","Dansk"],
+  ["Eslovaco","Slovenčina"],["Español","Español"],["Estonio","Eesti"],["Filipino","Filipino"],
+  ["Finlandés","Suomi"],["Francés","Français"],["Griego","Ελληνικά"],["Hebreo","עברית"],
+  ["Hindi","हिन्दी"],["Holandés","Nederlands"],["Húngaro","Magyar"],["Indonesio","Bahasa Indonesia"],
+  ["Inglés","English"],["Italiano","Italiano"],["Japonés","日本語"],["Letón","Latviešu"],
+  ["Lituano","Lietuvių"],["Noruego","Norsk"],["Polaco","Polski"],["Portugués","Português"],
+  ["Rumano","Română"],["Ruso","Русский"],["Serbio","Српски"],["Sueco","Svenska"],
+  ["Tailandés","ไทย"],["Turco","Türkçe"],["Ucraniano","Українська"],["Vietnamita","Tiếng Việt"]
+];
+
+function buildLangList(){
+  const list = document.getElementById('langList');
+  languages.forEach(([es, native]) => {
+    const item = document.createElement('div');
+    item.className = 'lang-item' + (es === 'Español' ? ' selected' : '');
+    item.innerHTML = `<div><div class="lang-name">${es}</div><div class="lang-native">${native}</div></div><span class="lang-check">✔</span>`;
+    item.onclick = () => {
+      document.querySelectorAll('.lang-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+    };
+    list.appendChild(item);
+  });
+}
+
+// INIT
+buildCards();
+buildProfileSlots();
+buildLangList();
+</script>
+</body>
+</html>
