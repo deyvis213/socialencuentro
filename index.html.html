@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bind – Conecta, conoce y encuentra tu match ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#fd3a6e;--pink2:#ff6b9d;--orange:#ff8c42;--grad:linear-gradient(135deg,#fd3a6e,#ff8c42);
+  --dark:#1a0a12;--card:#fff;--text:#222;--muted:#888;--border:#f0e0e8;
+  --nav:#fff;--shadow:0 4px 32px rgba(253,58,110,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:#f7eef2;color:var(--text);overflow-x:hidden;min-height:100vh}
+button{cursor:pointer;font-family:'Nunito',sans-serif;border:none;outline:none}
+input,select,textarea{font-family:'Nunito',sans-serif}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ===== SPLASH ===== */
+#splash{background:var(--grad);align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
+#splash::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.splash-logo{position:relative;z-index:2}
+.splash-logo svg{width:90px;height:90px;filter:drop-shadow(0 4px 24px rgba(0,0,0,.2))}
+.splash-title{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1;position:relative;z-index:2;text-shadow:0 4px 24px rgba(0,0,0,.2)}
+.splash-sub{color:rgba(255,255,255,.9);font-size:18px;font-weight:600;margin:12px 0 48px;position:relative;z-index:2}
+.splash-avatar{width:140px;height:140px;border-radius:50%;border:4px solid rgba(255,255,255,.6);object-fit:cover;margin:24px 0;position:relative;z-index:2;box-shadow:0 8px 40px rgba(0,0,0,.25)}
+.btn-main{background:#fff;color:var(--pink);font-size:18px;font-weight:800;padding:18px 60px;border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.18);transition:.2s;position:relative;z-index:2;letter-spacing:.5px}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.22)}
+.hearts-bg{position:absolute;inset:0;pointer-events:none;z-index:1}
+.heart-float{position:absolute;font-size:28px;opacity:.18;animation:floatH 8s infinite linear}
+@keyframes floatH{0%{transform:translateY(100vh) rotate(0deg);opacity:.18}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+
+/* ===== AUTH OVERLAY ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:flex-end;justify-content:center}
+.overlay.active{display:flex}
+.modal{background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:32px 28px 40px;max-height:92vh;overflow-y:auto;animation:slideUp .35s cubic-bezier(.22,1,.36,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:44px;height:5px;background:#e0d0d8;border-radius:10px;margin:0 auto 24px}
+.modal h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:6px}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:24px}
+.btn-social{display:flex;align-items:center;gap:12px;width:100%;padding:14px 20px;border-radius:14px;font-size:15px;font-weight:700;margin-bottom:12px;border:2px solid var(--border);background:#fff;transition:.15s}
+.btn-social:hover{border-color:var(--pink);background:#fff5f8}
+.btn-social svg{width:22px;height:22px}
+.btn-google{color:#333}.btn-fb{color:#1877f2}.btn-phone{color:var(--pink)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.inp{width:100%;padding:14px 18px;border:2px solid var(--border);border-radius:14px;font-size:15px;margin-bottom:14px;transition:.15s}
+.inp:focus{outline:none;border-color:var(--pink)}
+.btn-pink{background:var(--grad);color:#fff;font-size:16px;font-weight:800;padding:16px;border-radius:14px;width:100%;transition:.15s;margin-top:4px}
+.btn-pink:hover{opacity:.92;transform:translateY(-1px)}
+.btn-link{background:none;color:var(--pink);font-size:14px;font-weight:700;text-decoration:underline;margin:10px auto 0;display:block}
+.modal-close{position:absolute;top:18px;right:20px;background:#f5eef2;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
+.modal-close:hover{background:#fde0ea}
+.modal-wrap{position:relative}
+
+/* ===== MAIN APP ===== */
+#app{background:#f7eef2}
+.top-nav{background:var(--grad);padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.top-nav .logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px}
+.top-nav .nav-actions{display:flex;gap:8px}
+.nav-icon{background:rgba(255,255,255,.2);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;transition:.15s}
+.nav-icon:hover{background:rgba(255,255,255,.35)}
+
+/* Tabs */
+.tab-bar{background:#fff;display:flex;border-bottom:2px solid var(--border);position:sticky;top:66px;z-index:40;overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:14px 16px;font-size:13px;font-weight:700;color:var(--muted);border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:.15s}
+.tab-btn.active{color:var(--pink);border-bottom-color:var(--pink)}
+
+/* Sections */
+.section{display:none;padding:20px 16px}
+.section.active{display:block}
+
+/* ===== SWIPE SECTION ===== */
+.swipe-area{position:relative;height:520px;margin:0 auto;max-width:360px}
+.card{position:absolute;inset:0;border-radius:24px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.18);cursor:grab;user-select:none;transition:transform .15s}
+.card:active{cursor:grabbing}
+.card img{width:100%;height:100%;object-fit:cover}
+.card-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:24px 20px 20px;color:#fff}
+.card-info h3{font-size:24px;font-weight:800}
+.card-info p{font-size:14px;opacity:.85;margin-top:2px}
+.card-badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;margin-top:6px;backdrop-filter:blur(4px)}
+.swipe-btns{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:24px}
+.swipe-btn{border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(0,0,0,.13);transition:.15s;flex-shrink:0}
+.swipe-btn:hover{transform:scale(1.12)}
+.btn-rewind{width:48px;height:48px;background:#fff;color:#ffa500;font-size:18px}
+.btn-dislike{width:60px;height:60px;background:#fff;color:#ff4458;font-size:26px}
+.btn-super{width:48px;height:48px;background:#fff;color:#00b4d8;font-size:18px}
+.btn-like{width:60px;height:60px;background:#fff;color:#fd3a6e;font-size:26px}
+.btn-boost{width:48px;height:48px;background:#fff;color:#a855f7;font-size:18px}
+
+/* Profile cards stack */
+.card:nth-child(2){transform:scale(.97) translateY(12px);z-index:1}
+.card:nth-child(3){transform:scale(.94) translateY(24px);z-index:0}
+.card:first-child{z-index:10}
+
+/* ===== EXPLORE ===== */
+.explore-cats{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;margin-bottom:16px}
+.explore-cats::-webkit-scrollbar{display:none}
+.cat-chip{flex:0 0 auto;padding:8px 18px;border-radius:20px;background:#fff;border:2px solid var(--border);font-size:13px;font-weight:700;color:var(--muted);transition:.15s}
+.cat-chip.active,.cat-chip:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.explore-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.explore-card{border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4;box-shadow:var(--shadow)}
+.explore-card img{width:100%;height:100%;object-fit:cover}
+.explore-card-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:16px 12px 12px;color:#fff}
+.explore-card-info h4{font-size:15px;font-weight:800}
+.explore-card-info span{font-size:12px;opacity:.8}
+
+/* ===== LIKES ===== */
+.likes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.like-card{border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4;box-shadow:var(--shadow)}
+.like-card img{width:100%;height:100%;object-fit:cover;filter:blur(6px)}
+.like-card .like-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;padding:14px}
+.like-card h4{color:#fff;font-size:15px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.like-badge{position:absolute;top:10px;right:10px;background:var(--grad);color:#fff;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700}
+.upgrade-banner{background:var(--grad);border-radius:16px;padding:18px;color:#fff;text-align:center;margin-bottom:18px}
+.upgrade-banner h3{font-size:18px;font-weight:800}
+.upgrade-banner p{font-size:13px;opacity:.9;margin:4px 0 12px}
+.btn-white{background:#fff;color:var(--pink);font-weight:800;padding:10px 28px;border-radius:24px;font-size:14px}
+
+/* ===== MATCHES & CHAT ===== */
+.match-list{display:flex;flex-direction:column;gap:0}
+.match-row{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--border);cursor:pointer;transition:.1s}
+.match-row:hover{background:#fff5f8;border-radius:14px}
+.match-avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;flex-shrink:0;border:3px solid var(--pink)}
+.match-info{flex:1}
+.match-info h4{font-size:15px;font-weight:800}
+.match-info p{font-size:13px;color:var(--muted);margin-top:2px}
+.match-time{font-size:12px;color:var(--muted)}
+.new-dot{width:10px;height:10px;background:var(--pink);border-radius:50%;flex-shrink:0}
+.matches-row{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:none;margin-bottom:4px}
+.matches-row::-webkit-scrollbar{display:none}
+.match-bubble{text-align:center;flex:0 0 auto}
+.match-bubble img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--pink)}
+.match-bubble p{font-size:11px;font-weight:700;color:var(--muted);margin-top:4px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* CHAT */
+.chat-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:108px;z-index:30}
+.chat-header img{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.chat-messages{padding:16px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+.msg{max-width:72%;padding:12px 16px;border-radius:20px;font-size:14px;font-weight:600;line-height:1.45}
+.msg-in{background:#fff;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.msg-out{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-input-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#fff;border-top:1px solid var(--border);position:sticky;bottom:0}
+.chat-input-bar input{flex:1;padding:12px 16px;border:2px solid var(--border);border-radius:24px;font-size:14px}
+.chat-input-bar input:focus{outline:none;border-color:var(--pink)}
+.chat-action{background:#f7eef2;border:none;border-radius:50%;width:40px;height:40px;font-size:18px;display:flex;align-items:center;justify-content:center}
+.btn-send{background:var(--grad);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* ===== PROFILE ===== */
+.profile-header{text-align:center;padding:24px 16px 16px}
+.profile-header img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid var(--pink);margin-bottom:12px}
+.profile-header h2{font-size:24px;font-weight:800}
+.profile-header p{color:var(--muted);font-size:14px}
+.profile-photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px}
+.photo-slot{aspect-ratio:1;border-radius:14px;background:#f0e0e8;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--pink);border:2px dashed var(--pink2);cursor:pointer;overflow:hidden;position:relative}
+.photo-slot img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.profile-preview-btn{background:var(--grad);color:#fff;font-size:15px;font-weight:800;padding:14px;border-radius:14px;width:calc(100%-32px);margin:16px;display:block;text-align:center}
+.profile-form{padding:0 16px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:14px;background:#fff}
+.form-group textarea{resize:vertical;min-height:80px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tag{padding:7px 16px;border-radius:20px;border:2px solid var(--border);font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:.15s}
+.tag.sel{background:var(--pink);color:#fff;border-color:var(--pink)}
+.connect-btn{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:14px;border:2px solid var(--border);background:#fff;font-size:14px;font-weight:700;width:100%;margin-bottom:10px;transition:.15s}
+.connect-btn:hover{border-color:var(--pink)}
+
+/* ===== SECURITY ===== */
+.security-section{padding:16px}
+.security-section h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.security-section p{color:var(--muted);font-size:13px;margin-bottom:20px}
+.sec-card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.sec-card h3{font-size:15px;font-weight:800;margin-bottom:12px;color:var(--pink)}
+.sec-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:14px;font-weight:600}
+.sec-item:last-child{margin-bottom:0}
+.sec-icon{font-size:18px;flex-shrink:0;margin-top:-1px}
+
+/* ===== SETTINGS ===== */
+.settings-section{padding:16px}
+.plan-card{border-radius:18px;padding:18px;color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
+.plan-platinum{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)}
+.plan-gold{background:linear-gradient(135deg,#b8860b,#daa520,#ffd700)}
+.plan-limited{background:linear-gradient(135deg,#fd3a6e,#ff8c42)}
+.plan-card h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.plan-card p{font-size:13px;opacity:.85;margin-bottom:12px}
+.plan-badge{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700}
+.settings-group{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
+.settings-item{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:.1s}
+.settings-item:last-child{border-bottom:none}
+.settings-item:hover{background:#fff5f8}
+.settings-item-icon{font-size:20px;width:34px;text-align:center}
+.settings-item-text{flex:1}
+.settings-item-text h4{font-size:15px;font-weight:700}
+.settings-item-text p{font-size:12px;color:var(--muted);margin-top:2px}
+.settings-item-arrow{color:var(--muted);font-size:18px}
+.toggle{width:44px;height:24px;background:#ddd;border-radius:12px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle.on{background:var(--pink)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{left:23px}
+
+/* ===== LANGUAGE ===== */
+.lang-section{padding:16px}
+.lang-section h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:16px}
+.lang-list{display:flex;flex-direction:column;gap:0;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.lang-item{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:.1s}
+.lang-item:last-child{border-bottom:none}
+.lang-item:hover{background:#fff5f8}
+.lang-item.sel{background:#fff5f8}
+.lang-item.sel .lang-name{color:var(--pink)}
+.lang-native{font-size:13px;color:var(--muted)}
+.lang-name{font-size:14px;font-weight:700}
+.lang-check{color:var(--pink);font-size:16px}
+
+/* ===== BOTTOM BAR ===== */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 16px;z-index:60;box-shadow:0 -4px 20px rgba(253,58,110,.08)}
+.bottom-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);font-size:10px;font-weight:700;padding:0 10px;transition:.15s}
+.bottom-btn .icon{font-size:22px;transition:.15s}
+.bottom-btn.active{color:var(--pink)}
+.bottom-btn.active .icon{transform:scale(1.15)}
+
+/* ===== NOTIFICATIONS ===== */
+.notif-list{display:flex;flex-direction:column;gap:0}
+.notif-item{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--border)}
+.notif-item img{width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.notif-info{flex:1}
+.notif-info p{font-size:14px;font-weight:600;line-height:1.4}
+.notif-info span{font-size:12px;color:var(--muted)}
+.notif-dot{width:8px;height:8px;background:var(--pink);border-radius:50%;flex-shrink:0}
+
+.section-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:16px}
+
+/* Chat View */
+#chat-view{display:none;position:fixed;inset:0;background:#fff;z-index:80;flex-direction:column}
+#chat-view.active{display:flex}
+.chat-back{background:none;border:none;font-size:22px;color:var(--pink);padding:0}
+
+/* Responsive */
+@media(min-width:480px){
+  .bottom-bar{max-width:480px;left:50%;transform:translateX(-50%)}
+  .top-nav,.tab-bar{max-width:480px;left:50%;transform:translateX(-50%);width:100%}
+  #app{max-width:480px;margin:0 auto}
+  .overlay .modal{max-width:480px}
+}
+
+.app-wrapper{padding-bottom:80px}
+</style>
+</head>
+<body>
+
+<!-- =============================== SPLASH =============================== -->
+<div id="splash" class="screen active">
+  <div class="hearts-bg">
+    <span class="heart-float" style="left:8%;animation-delay:0s;animation-duration:9s">❤️</span>
+    <span class="heart-float" style="left:22%;animation-delay:1.5s;animation-duration:7s">💕</span>
+    <span class="heart-float" style="left:40%;animation-delay:3s;animation-duration:10s">❤️</span>
+    <span class="heart-float" style="left:60%;animation-delay:0.8s;animation-duration:8s">💖</span>
+    <span class="heart-float" style="left:78%;animation-delay:2.2s;animation-duration:6s">❤️</span>
+    <span class="heart-float" style="left:90%;animation-delay:4s;animation-duration:9s">💕</span>
+  </div>
+  <div class="splash-logo">
+    <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="45" cy="45" r="45" fill="rgba(255,255,255,0.15)"/>
+      <path d="M45 68C44 68 20 54 20 36C20 27 27 21 36 21C40.5 21 44 23.5 45 25C46 23.5 49.5 21 54 21C63 21 70 27 70 36C70 54 46 68 45 68Z" fill="white"/>
+    </svg>
+  </div>
+  <!-- Foto de la chica -->
+  <img class="splash-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Bind girl">
+  <div class="splash-title">Bind</div>
+  <div class="splash-sub">Conecta, conoce y encuentra tu match ❤️</div>
+  <button class="btn-main" onclick="goToAuth()">Entrar</button>
+</div>
+
+<!-- =============================== AUTH OVERLAY =============================== -->
+<div id="auth-overlay" class="overlay">
+  <div class="modal-wrap" style="width:100%;max-width:480px">
+    <div class="modal" id="auth-modal">
+      <button class="modal-close" onclick="closeOverlay('auth-overlay')">✕</button>
+      <div class="modal-handle"></div>
+      <h2>Bienvenido/a a Bind 💖</h2>
+      <p>Crea tu cuenta o inicia sesión para empezar</p>
+      <button class="btn-social btn-google" onclick="showSection('swipe')">
+        <svg viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Iniciar con Google
+      </button>
+      <button class="btn-social btn-fb" onclick="showSection('swipe')">
+        <svg viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Iniciar con Facebook
+      </button>
+      <button class="btn-social btn-phone" onclick="showPhoneAuth()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fd3a6e" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Iniciar con número de teléfono
+      </button>
+      <div class="divider">o</div>
+      <button class="btn-pink" onclick="showSection('swipe')">Crear cuenta nueva</button>
+      <button class="btn-link" onclick="showForgot()">¿Problemas para iniciar sesión?</button>
+    </div>
+  </div>
+</div>
+
+<!-- Phone Auth -->
+<div id="phone-overlay" class="overlay">
+  <div class="modal-wrap" style="width:100%;max-width:480px">
+    <div class="modal">
+      <button class="modal-close" onclick="closeOverlay('phone-overlay')">✕</button>
+      <div class="modal-handle"></div>
+      <h2>Número de teléfono 📱</h2>
+      <p>Te enviaremos un código de verificación por SMS</p>
+      <input class="inp" type="tel" placeholder="+1 000 000 0000">
+      <button class="btn-pink" onclick="showSMS()">Enviar código SMS</button>
+    </div>
+  </div>
+</div>
+
+<!-- SMS Verify -->
+<div id="sms-overlay" class="overlay">
+  <div class="modal-wrap" style="width:100%;max-width:480px">
+    <div class="modal">
+      <button class="modal-close" onclick="closeOverlay('sms-overlay')">✕</button>
+      <div class="modal-handle"></div>
+      <h2>Verificación SMS 🔐</h2>
+      <p>Ingresa el código de 6 dígitos enviado a tu teléfono</p>
+      <input class="inp" type="text" placeholder="000000" maxlength="6" style="letter-spacing:12px;font-size:24px;text-align:center">
+      <button class="btn-pink" onclick="showTerms()">Verificar</button>
+      <button class="btn-link">Reenviar código</button>
+    </div>
+  </div>
+</div>
+
+<!-- Terms -->
+<div id="terms-overlay" class="overlay">
+  <div class="modal-wrap" style="width:100%;max-width:480px">
+    <div class="modal">
+      <button class="modal-close" onclick="closeOverlay('terms-overlay')">✕</button>
+      <div class="modal-handle"></div>
+      <h2>Términos y condiciones 📋</h2>
+      <p>Al crear una cuenta aceptas nuestros Términos de Servicio y Política de Privacidad. Bind es una plataforma para mayores de 18 años. Tu información está protegida y no será compartida con terceros.</p>
+      <div style="background:#f7eef2;border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;max-height:180px;overflow-y:auto;line-height:1.6;color:#555">
+        <b>1. Uso de la plataforma:</b> Bind es exclusivamente para adultos mayores de 18 años. El usuario es responsable de la veracidad de su información.<br><br>
+        <b>2. Privacidad:</b> Tus datos serán tratados conforme a nuestra política de privacidad vigente.<br><br>
+        <b>3. Conducta:</b> Tolerancia cero a acoso, discurso de odio y contenido inapropiado.<br><br>
+        <b>4. Contenido:</b> Las fotos de perfil deben ser reales y apropiadas para todos los públicos.
+      </div>
+      <button class="btn-pink" onclick="closeAll();showSection('swipe')">Acepto y continuar ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot -->
+<div id="forgot-overlay" class="overlay">
+  <div class="modal-wrap" style="width:100%;max-width:480px">
+    <div class="modal">
+      <button class="modal-close" onclick="closeOverlay('forgot-overlay')">✕</button>
+      <div class="modal-handle"></div>
+      <h2>Recuperar cuenta 🔑</h2>
+      <p>Ingresa tu email y te enviaremos un enlace para recuperar tu cuenta</p>
+      <input class="inp" type="email" placeholder="tucorreo@email.com">
+      <button class="btn-pink" onclick="alert('¡Enlace enviado! Revisa tu correo 📧')">Enviar enlace</button>
+    </div>
+  </div>
+</div>
+
+<!-- =============================== MAIN APP =============================== -->
+<div id="app" class="screen">
+  <div class="top-nav">
+    <span class="logo">💖 Bind</span>
+    <div class="nav-actions">
+      <button class="nav-icon" onclick="openNotif()" title="Notificaciones">🔔</button>
+      <button class="nav-icon" onclick="openOverlay('auth-overlay')" title="Opciones">⚙️</button>
+    </div>
+  </div>
+
+  <div class="tab-bar" id="tab-bar">
+    <button class="tab-btn active" data-tab="swipe" onclick="switchTab('swipe')">🏠 Inicio</button>
+    <button class="tab-btn" data-tab="explore" onclick="switchTab('explore')">🔍 Explorar</button>
+    <button class="tab-btn" data-tab="likes" onclick="switchTab('likes')">❤️ Likes</button>
+    <button class="tab-btn" data-tab="matches" onclick="switchTab('matches')">💬 Matches</button>
+    <button class="tab-btn" data-tab="profile" onclick="switchTab('profile')">👤 Perfil</button>
+    <button class="tab-btn" data-tab="security" onclick="switchTab('security')">🛡️ Seguridad</button>
+    <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">⚙️ Ajuste</button>
+    <button class="tab-btn" data-tab="language" onclick="switchTab('language')">🌐 Idioma</button>
+  </div>
+
+  <div class="app-wrapper">
+
+    <!-- ===== SWIPE ===== -->
+    <div id="sec-swipe" class="section active">
+      <div class="swipe-area" id="swipe-stack"></div>
+      <div class="swipe-btns">
+        <button class="swipe-btn btn-rewind" onclick="swipeAction('rewind')" title="Rewind">🔄</button>
+        <button class="swipe-btn btn-dislike" onclick="swipeAction('dislike')" title="Dislike">✖</button>
+        <button class="swipe-btn btn-super" onclick="swipeAction('super')" title="Super Like">⭐</button>
+        <button class="swipe-btn btn-like" onclick="swipeAction('like')" title="Like">❤</button>
+        <button class="swipe-btn btn-boost" onclick="swipeAction('boost')" title="Boost">⚡</button>
+      </div>
+    </div>
+
+    <!-- ===== EXPLORE ===== -->
+    <div id="sec-explore" class="section">
+      <div class="section-title">Descubrir</div>
+      <div class="explore-cats">
+        <button class="cat-chip active">✨ Todo</button>
+        <button class="cat-chip" onclick="chipSel(this)">🎵 Música</button>
+        <button class="cat-chip" onclick="chipSel(this)">⚽ Deporte</button>
+        <button class="cat-chip" onclick="chipSel(this)">✈️ Viajes</button>
+        <button class="cat-chip" onclick="chipSel(this)">🎨 Arte</button>
+        <button class="cat-chip" onclick="chipSel(this)">🍕 Gastronomía</button>
+        <button class="cat-chip" onclick="chipSel(this)">📚 Libros</button>
+        <button class="cat-chip" onclick="chipSel(this)">🎮 Gaming</button>
+        <button class="cat-chip" onclick="chipSel(this)">🌍 Tinder Passport</button>
+        <button class="cat-chip" onclick="chipSel(this)">🎉 Eventos</button>
+      </div>
+      <div class="explore-grid" id="explore-grid"></div>
+    </div>
+
+    <!-- ===== LIKES ===== -->
+    <div id="sec-likes" class="section">
+      <div class="upgrade-banner">
+        <h3>👁️ Ve quién te dio Like</h3>
+        <p>Actualiza a Bind Gold para ver todos tus admiradores</p>
+        <button class="btn-white" onclick="switchTab('settings')">Ver planes</button>
+      </div>
+      <div class="section-title">Likes recibidos</div>
+      <div class="likes-grid" id="likes-grid"></div>
+      <div style="margin-top:20px">
+        <div class="section-title">Actividad reciente</div>
+        <div id="activity-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== MATCHES ===== -->
+    <div id="sec-matches" class="section">
+      <div class="section-title">Nuevos matches 🎉</div>
+      <div class="matches-row" id="matches-row"></div>
+      <div class="section-title">Mensajes</div>
+      <div class="match-list" id="match-list"></div>
+    </div>
+
+    <!-- ===== PROFILE ===== -->
+    <div id="sec-profile" class="section" style="padding:0">
+      <div class="profile-header">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Mi perfil">
+        <h2>Mi Perfil</h2>
+        <p>Completa tu perfil para más matches ✨</p>
+      </div>
+      <div style="padding:0 16px 8px">
+        <div class="section-title">Mis fotos</div>
+        <div class="profile-photos-grid" id="photo-grid"></div>
+        <button class="profile-preview-btn" onclick="alert('Vista previa del perfil activada 👀')">Vista previa del perfil 👁️</button>
+      </div>
+      <div class="profile-form">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" class="inp" placeholder="Tu nombre" value="María">
+        </div>
+        <div class="form-group">
+          <label>Edad</label>
+          <input type="number" class="inp" placeholder="Edad" value="24">
+        </div>
+        <div class="form-group">
+          <label>Biografía</label>
+          <textarea class="inp" placeholder="Cuéntanos algo sobre ti...">Amante de los viajes, la música y los buenos momentos ☀️</textarea>
+        </div>
+        <div class="form-group">
+          <label>Intereses</label>
+          <div class="tag-row">
+            <span class="tag sel" onclick="tagToggle(this)">🎵 Música</span>
+            <span class="tag sel" onclick="tagToggle(this)">✈️ Viajes</span>
+            <span class="tag" onclick="tagToggle(this)">📸 Fotografía</span>
+            <span class="tag" onclick="tagToggle(this)">🍕 Gastronomía</span>
+            <span class="tag sel" onclick="tagToggle(this)">🏋️ Fitness</span>
+            <span class="tag" onclick="tagToggle(this)">🎮 Gaming</span>
+            <span class="tag" onclick="tagToggle(this)">📚 Lectura</span>
+            <span class="tag" onclick="tagToggle(this)">🌿 Naturaleza</span>
+            <span class="tag" onclick="tagToggle(this)">🎨 Arte</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Género</label>
+          <select class="inp">
+            <option>Mujer</option><option>Hombre</option><option>No binario</option><option>Prefiero no decirlo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Orientación sexual</label>
+          <select class="inp">
+            <option>Heterosexual</option><option>Homosexual</option><option>Bisexual</option><option>Pansexual</option><option>Prefiero no decirlo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>📍 Ubicación / Distancia máxima</label>
+          <input type="range" min="2" max="160" value="25" style="width:100%;accent-color:var(--pink)">
+          <p style="font-size:13px;color:var(--muted);margin-top:4px">25 km</p>
+        </div>
+        <div class="form-group">
+          <label>Trabajo</label>
+          <input type="text" class="inp" placeholder="Tu trabajo...">
+        </div>
+        <div class="form-group">
+          <label>Estudios</label>
+          <input type="text" class="inp" placeholder="Tu institución educativa...">
+        </div>
+        <button class="connect-btn">
+          <span style="font-size:22px">📷</span>
+          <span>Conectar Instagram</span>
+          <span style="margin-left:auto;color:var(--pink);font-size:13px">Conectar →</span>
+        </button>
+        <button class="connect-btn">
+          <span style="font-size:22px">🎵</span>
+          <span>Conectar Spotify</span>
+          <span style="margin-left:auto;color:var(--pink);font-size:13px">Conectar →</span>
+        </button>
+        <button class="connect-btn" onclick="alert('Iniciando verificación de identidad 📸')">
+          <span style="font-size:22px">✅</span>
+          <span>Verificación de perfil (selfie)</span>
+          <span style="margin-left:auto;color:var(--pink);font-size:13px">Verificar →</span>
+        </button>
+        <button class="btn-pink" style="margin-bottom:24px" onclick="alert('Perfil guardado ✅')">Guardar perfil</button>
+      </div>
+    </div>
+
+    <!-- ===== SECURITY ===== -->
+    <div id="sec-security" class="section security-section">
+      <h2>🛡️ CENTRO DE SEGURIDAD</h2>
+      <p>Tu seguridad es nuestra prioridad número uno</p>
+      <div class="sec-card">
+        <h3>🛡️ Herramientas de Protección</h3>
+        <div class="sec-item"><span class="sec-icon">🚫</span><span>Prohíben armas en las fotos de perfil.</span></div>
+        <div class="sec-item"><span class="sec-icon">🤝</span><span>Tolerancia cero al discurso de odio y acoso.</span></div>
+        <div class="sec-item"><span class="sec-icon">📞</span><span>Videollamadas y llamadas dentro de la app.</span></div>
+        <div class="sec-item"><span class="sec-icon">📸</span><span>Verificación por foto para confirmar identidad.</span></div>
+        <div class="sec-item"><span class="sec-icon">👁️</span><span>Private Detector: desenfoque de imágenes explícitas.</span></div>
+        <div class="sec-item"><span class="sec-icon">🤖</span><span>Deception Detector™: IA que previene estafas.</span></div>
+      </div>
+      <div class="sec-card">
+        <h3>📲 Control de tu experiencia</h3>
+        <div class="sec-item"><span class="sec-icon">🔹</span><span>Definir quién puede enviarte mensajes.</span></div>
+        <div class="sec-item"><span class="sec-icon">🔹</span><span>Elegir si otros ven tu estado en línea.</span></div>
+        <div class="sec-item"><span class="sec-icon">📌</span><span>Detectar y protegerte contra acoso online.</span></div>
+        <div class="sec-item"><span class="sec-icon">📌</span><span>Evitar difusión de contenido privado (bloqueo capturas).</span></div>
+      </div>
+      <div class="sec-card">
+        <h3>📍 Consejos</h3>
+        <div class="sec-item"><span class="sec-icon">❌</span><span>No compartas contraseñas ni datos financieros.</span></div>
+        <div class="sec-item"><span class="sec-icon">❌</span><span>No des tu dirección o ubicación específica.</span></div>
+      </div>
+      <div class="sec-card">
+        <h3>🚨 Reportar / Bloquear</h3>
+        <button class="btn-pink" style="margin-bottom:10px" onclick="alert('Función de reporte activada')">🚩 Reportar usuario</button>
+        <button class="btn-pink" style="background:#555" onclick="alert('Usuario bloqueado')">🚫 Bloquear usuario</button>
+      </div>
+      <div class="sec-card">
+        <h3>🆔 Verificación de identidad</h3>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:12px">Verifica tu identidad para obtener la insignia de perfil verificado</p>
+        <button class="btn-pink" onclick="alert('Iniciando verificación de identidad 📷')">Verificar identidad</button>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div id="sec-settings" class="section settings-section">
+      <div class="section-title">CONFIGURACIÓN</div>
+      <div class="plan-card plan-platinum" style="margin-bottom:12px">
+        <div class="plan-badge">👑 PREMIUM</div>
+        <h3>💎 Bind Platinum</h3>
+        <p>Likes ilimitados, mensajes antes del match, Top Picks y más</p>
+        <button class="btn-white">Ver plan</button>
+      </div>
+      <div class="plan-card plan-gold" style="margin-bottom:12px">
+        <div class="plan-badge">⭐ POPULAR</div>
+        <h3>🥇 Bind Gold</h3>
+        <p>Ve quién te dio Like, Passport, Boost mensual incluido</p>
+        <button class="btn-white">Ver plan</button>
+      </div>
+      <div class="plan-card plan-limited" style="margin-bottom:20px">
+        <div class="plan-badge">🔥 OFERTA</div>
+        <h3>⚡ Bind Limitado</h3>
+        <p>Boosts y Super Likes a precios especiales</p>
+        <button class="btn-white">Ver plan</button>
+      </div>
+      <div class="settings-group">
+        <div class="settings-item">
+          <span class="settings-item-icon">⚙️</span>
+          <div class="settings-item-text"><h4>Ajustes de cuenta</h4><p>Email, contraseña, número</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🔍</span>
+          <div class="settings-item-text"><h4>Preferencias de búsqueda</h4><p>Edad, distancia, género</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🔔</span>
+          <div class="settings-item-text"><h4>Notificaciones</h4><p>Matches, mensajes, likes</p></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">📍</span>
+          <div class="settings-item-text"><h4>Ubicación activa</h4><p>Permitir acceso a tu ubicación</p></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🔒</span>
+          <div class="settings-item-text"><h4>Privacidad</h4><p>Controla quién te ve</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🕵️</span>
+          <div class="settings-item-text"><h4>Modo incógnito</h4><p>Sé invisible en explorar</p></div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🌙</span>
+          <div class="settings-item-text"><h4>Modo oscuro</h4><p>Cambia el tema visual</p></div>
+          <div class="toggle" onclick="this.classList.toggle('on');toggleDark()"></div>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🎓</span>
+          <div class="settings-item-text"><h4>Bind U (universitarios)</h4><p>Conecta con tu campus</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🌍</span>
+          <div class="settings-item-text"><h4>Bind Passport</h4><p>Cambia tu ubicación global</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">🚫</span>
+          <div class="settings-item-text"><h4>Bloqueos</h4><p>Usuarios bloqueados</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-icon">❓</span>
+          <div class="settings-item-text"><h4>Centro de ayuda</h4><p>Soporte y FAQ</p></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item" onclick="if(confirm('¿Cerrar sesión?'))showSplash()">
+          <span class="settings-item-icon">🚪</span>
+          <div class="settings-item-text"><h4>Cerrar sesión</h4></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item" onclick="if(confirm('¿Eliminar cuenta? Esta acción no se puede deshacer.'))alert('Cuenta eliminada')">
+          <span class="settings-item-icon">🗑️</span>
+          <div class="settings-item-text" style="color:#ff4458"><h4 style="color:#ff4458">Eliminar cuenta</h4></div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LANGUAGE ===== -->
+    <div id="sec-language" class="section lang-section">
+      <h2>🌐 Seleccionar Idioma</h2>
+      <div class="lang-list" id="lang-list"></div>
+    </div>
+
+  </div><!-- /app-wrapper -->
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <button class="bottom-btn active" data-tab="swipe" onclick="switchTab('swipe')">
+      <span class="icon">🏠</span><span>Inicio</span>
+    </button>
+    <button class="bottom-btn" data-tab="explore" onclick="switchTab('explore')">
+      <span class="icon">🔍</span><span>Explorar</span>
+    </button>
+    <button class="bottom-btn" data-tab="likes" onclick="switchTab('likes')">
+      <span class="icon">❤️</span><span>Likes</span>
+    </button>
+    <button class="bottom-btn" data-tab="matches" onclick="switchTab('matches')">
+      <span class="icon">💬</span><span>Matches</span>
+    </button>
+    <button class="bottom-btn" data-tab="profile" onclick="switchTab('profile')">
+      <span class="icon">👤</span><span>Perfil</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== CHAT VIEW ===== -->
+<div id="chat-view">
+  <div class="chat-header">
+    <button class="chat-back" onclick="closeChat()">←</button>
+    <img id="chat-avatar" src="" alt="">
+    <div style="flex:1">
+      <h4 id="chat-name" style="font-size:15px;font-weight:800"></h4>
+      <p style="font-size:12px;color:var(--pink)">● En línea</p>
+    </div>
+    <button style="background:none;border:none;font-size:20px" onclick="alert('Videollamada iniciando 📹')">📹</button>
+    <button style="background:none;border:none;font-size:20px" onclick="alert('Reportar usuario')">⋮</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="msg msg-in">¡Hola! 😊 ¿Cómo estás?</div>
+    <div class="msg msg-out">¡Muy bien gracias! Vi tu perfil y me encantó ❤️</div>
+    <div class="msg msg-in">¡Qué lindo! A mí también me gustó el tuyo 😍</div>
+    <div class="msg msg-out">¿Te gustaría tomar un café algún día? ☕</div>
+  </div>
+  <div class="chat-input-bar">
+    <button class="chat-action" onclick="alert('Enviar GIF 🎞️')">GIF</button>
+    <button class="chat-action" onclick="alert('Enviar foto 📷')">📷</button>
+    <input type="text" placeholder="Escribe un mensaje..." id="chat-inp" onkeydown="sendMsg(event)">
+    <button class="btn-send" onclick="sendMsg({key:'Enter'})">➤</button>
+  </div>
+</div>
+
+<!-- NOTIF OVERLAY -->
+<div id="notif-overlay" class="overlay">
+  <div class="modal-wrap" style="width:100%;max-width:480px">
+    <div class="modal">
+      <button class="modal-close" onclick="closeOverlay('notif-overlay')">✕</button>
+      <div class="modal-handle"></div>
+      <h2>🔔 Notificaciones</h2>
+      <div class="notif-list" id="notif-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const profiles = [
+  // 10 mujeres
+  {name:"Valentina",age:24,dist:"3 km",img:"https://randomuser.me/api/portraits/women/1.jpg",bio:"Bailarina y amante de los viajes 🌎",tag:"Viajes · Música"},
+  {name:"Camila",age:22,dist:"5 km",img:"https://randomuser.me/api/portraits/women/2.jpg",bio:"Estudiante de medicina ☕ Amo los gatos",tag:"Salud · Animales"},
+  {name:"Sofía",age:26,dist:"8 km",img:"https://randomuser.me/api/portraits/women/3.jpg",bio:"Diseñadora gráfica y foodie 🍕",tag:"Arte · Gastronomía"},
+  {name:"Isabella",age:23,dist:"2 km",img:"https://randomuser.me/api/portraits/women/4.jpg",bio:"Yoga y meditación 🧘‍♀️ Viajera del alma",tag:"Yoga · Viajes"},
+  {name:"Gabriela",age:25,dist:"11 km",img:"https://randomuser.me/api/portraits/women/5.jpg",bio:"Ingeniera de sistemas 💻 y gamer secreta 🎮",tag:"Tech · Gaming"},
+  {name:"Mariana",age:21,dist:"4 km",img:"https://randomuser.me/api/portraits/women/6.jpg",bio:"Estudiante de arte 🎨 y café de especialidad ☕",tag:"Arte · Café"},
+  {name:"Daniela",age:27,dist:"6 km",img:"https://randomuser.me/api/portraits/women/7.jpg",bio:"Chef pastelera 🎂 amante de los perros 🐕",tag:"Cocina · Animales"},
+  {name:"Natalia",age:24,dist:"9 km",img:"https://randomuser.me/api/portraits/women/8.jpg",bio:"Cantante indie 🎸 buscando aventuras",tag:"Música · Aventura"},
+  {name:"Alejandra",age:23,dist:"7 km",img:"https://randomuser.me/api/portraits/women/9.jpg",bio:"Fotógrafa y viajera empedernida 📸",tag:"Fotografía · Viajes"},
+  {name:"Paola",age:26,dist:"3 km",img:"https://randomuser.me/api/portraits/women/10.jpg",bio:"Abogada de día, bailarina de noche 💃",tag:"Derecho · Baile"},
+  // 5 chicos
+  {name:"Sebastián",age:27,dist:"5 km",img:"https://randomuser.me/api/portraits/men/1.jpg",bio:"Futbolista amateur ⚽ y chef los fines de semana",tag:"Fútbol · Cocina"},
+  {name:"Andrés",age:25,dist:"8 km",img:"https://randomuser.me/api/portraits/men/2.jpg",bio:"Músico 🎸 y explorador de cafeterías ☕",tag:"Música · Café"},
+  {name:"Diego",age:28,dist:"12 km",img:"https://randomuser.me/api/portraits/men/3.jpg",bio:"Arquitecto 🏛️ amante del surf 🏄",tag:"Diseño · Surf"},
+  {name:"Mateo",age:24,dist:"4 km",img:"https://randomuser.me/api/portraits/men/4.jpg",bio:"Emprendedor 💼 y cinéfilo 🎬",tag:"Negocios · Cine"},
+  {name:"Carlos",age:26,dist:"6 km",img:"https://randomuser.me/api/portraits/men/5.jpg",bio:"Médico residente 🏥 y corredor de maratón 🏃",tag:"Salud · Deporte"},
+];
+
+const languages = [
+  ["Afrikáans","Afrikaans"],["Albanés","Shqip"],["Alemán","Deutsch"],["Árabe","العربية"],
+  ["Armenio","Հայerեн"],["Bengalí","বাংলা"],["Búlgaro","Български"],["Catalán","Català"],
+  ["Checo","Čeština"],["Chino","中文"],["Coreano","한국어"],["Danés","Dansk"],
+  ["Eslovaco","Slovenčina"],["Español","Español"],["Estonio","Eesti"],["Filipino","Filipino"],
+  ["Finlandés","Suomi"],["Francés","Français"],["Griego","Ελληνικά"],["Hebreo","עברית"],
+  ["Hindi","हिन्दी"],["Holandés","Nederlands"],["Húngaro","Magyar"],["Indonesio","Bahasa Indonesia"],
+  ["Inglés","English"],["Italiano","Italiano"],["Japonés","日本語"],["Letón","Latviešu"],
+  ["Lituano","Lietuvių"],["Noruego","Norsk"],["Polaco","Polski"],["Portugués","Português"],
+  ["Rumano","Română"],["Ruso","Русский"],["Serbio","Српски"],["Sueco","Svenska"],
+  ["Tailandés","ไทย"],["Turco","Türkçe"],["Ucraniano","Українська"],["Vietnamita","Tiếng Việt"],
+];
+
+// ===== INIT =====
+let currentCard=0, selLang="Español";
+
+function init(){
+  buildCards();
+  buildExplore();
+  buildLikes();
+  buildMatches();
+  buildPhotos();
+  buildLanguages();
+  buildNotifs();
+}
+
+// SPLASH → AUTH
+function goToAuth(){
+  openOverlay('auth-overlay');
+}
+function showSplash(){
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('splash').classList.add('active');
+}
+
+// Show app section
+function showSection(tab){
+  closeAll();
+  document.getElementById('splash').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  switchTab(tab);
+}
+
+// Overlays
+function openOverlay(id){document.getElementById(id).classList.add('active')}
+function closeOverlay(id){document.getElementById(id).classList.remove('active')}
+function closeAll(){
+  ['auth-overlay','phone-overlay','sms-overlay','terms-overlay','forgot-overlay','notif-overlay']
+    .forEach(id=>closeOverlay(id));
+}
+
+function showPhoneAuth(){closeOverlay('auth-overlay');openOverlay('phone-overlay')}
+function showSMS(){closeOverlay('phone-overlay');openOverlay('sms-overlay')}
+function showTerms(){closeOverlay('sms-overlay');openOverlay('terms-overlay')}
+function showForgot(){closeOverlay('auth-overlay');openOverlay('forgot-overlay')}
+function openNotif(){openOverlay('notif-overlay')}
+
+// Tabs
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.bottom-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const sec=document.getElementById('sec-'+tab);
+  if(sec)sec.classList.add('active');
+}
+
+// CARDS
+function buildCards(){
+  const stack=document.getElementById('swipe-stack');
+  stack.innerHTML='';
+  const show=profiles.slice(currentCard,currentCard+3);
+  show.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='card';
+    d.style.zIndex=10-i;
+    if(i===1)d.style.transform='scale(0.97) translateY(12px)';
+    if(i===2)d.style.transform='scale(0.94) translateY(24px)';
+    d.innerHTML=`<img src="${p.img}" alt="${p.name}" loading="lazy">
+      <div class="card-info">
+        <h3>${p.name}, ${p.age}</h3>
+        <p>📍 ${p.dist} · ${p.bio}</p>
+        <span class="card-badge">${p.tag}</span>
+      </div>`;
+    if(i===0){
+      d.addEventListener('click',()=>viewProfile(currentCard));
+      makeDraggable(d);
+    }
+    stack.appendChild(d);
+  });
+}
+
+function makeDraggable(card){
+  let startX,startY,moving=false;
+  card.addEventListener('mousedown',e=>{startX=e.clientX;startY=e.clientY;moving=false});
+  document.addEventListener('mousemove',e=>{
+    if(startX===undefined)return;
+    const dx=e.clientX-startX,dy=e.clientY-startY;
+    if(Math.abs(dx)>5||Math.abs(dy)>5){moving=true}
+    if(moving)card.style.transform=`translateX(${dx}px) rotate(${dx*.03}deg)`;
+  });
+  document.addEventListener('mouseup',e=>{
+    if(startX===undefined)return;
+    const dx=e.clientX-startX;
+    if(moving){
+      if(dx>80)swipeAction('like');
+      else if(dx<-80)swipeAction('dislike');
+      else card.style.transform='';
+    }
+    startX=undefined;moving=false;
+  });
+  // Touch
+  card.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;moving=false},{passive:true});
+  card.addEventListener('touchmove',e=>{
+    const dx=e.touches[0].clientX-startX;
+    moving=true;
+    card.style.transform=`translateX(${dx}px) rotate(${dx*.03}deg)`;
+  },{passive:true});
+  card.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>70)swipeAction(dx>0?'like':'dislike');
+    else card.style.transform='';
+  });
+}
+
+function swipeAction(type){
+  const msgs={like:'💖 ¡Like!',dislike:'❌ Pasaste',super:'⭐ ¡Super Like!',boost:'⚡ ¡Boost activado!',rewind:'🔄 ¡Volviste atrás!'};
+  showToast(msgs[type]||'');
+  if(type==='rewind'){if(currentCard>0)currentCard--;buildCards();return;}
+  if(type==='boost'){return;}
+  if(type!=='rewind'){currentCard=(currentCard+1)%profiles.length;buildCards();}
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 24px;border-radius:30px;font-size:15px;font-weight:700;z-index:200;transition:opacity .3s';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)},1200);
+}
+
+function viewProfile(i){
+  const p=profiles[i];
+  openChat(p);
+}
+
+// EXPLORE
+function buildExplore(){
+  const g=document.getElementById('explore-grid');
+  g.innerHTML='';
+  profiles.slice(0,12).forEach(p=>{
+    g.innerHTML+=`<div class="explore-card" onclick="openChat(profiles[${profiles.indexOf(p)}])">
+      <img src="${p.img}" alt="${p.name}" loading="lazy">
+      <div class="explore-card-info"><h4>${p.name}, ${p.age}</h4><span>📍 ${p.dist}</span></div>
+    </div>`;
+  });
+}
+
+function chipSel(el){
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// LIKES
+function buildLikes(){
+  const g=document.getElementById('likes-grid');
+  g.innerHTML='';
+  profiles.slice(0,8).forEach(p=>{
+    g.innerHTML+=`<div class="like-card">
+      <img src="${p.img}" alt="${p.name}">
+      <div class="like-overlay"><h4>${p.name}</h4></div>
+      <div class="like-badge">❤️ Like</div>
+    </div>`;
+  });
+  const al=document.getElementById('activity-list');
+  al.innerHTML='';
+  profiles.slice(0,5).forEach(p=>{
+    al.innerHTML+=`<div class="match-row" onclick="openChat(p)">
+      <img class="match-avatar" src="${p.img}" alt="${p.name}">
+      <div class="match-info"><h4>${p.name}</h4><p>Te dio like hace ${Math.floor(Math.random()*24)+1}h</p></div>
+      <div class="new-dot"></div>
+    </div>`;
+  });
+}
+
+// MATCHES
+function buildMatches(){
+  const row=document.getElementById('matches-row');
+  row.innerHTML='';
+  const msgs=["Hola! 😊","¿Quieres salir?","¡Me encantó tu perfil!","Holiii 👋","¿Cómo estás?"];
+  profiles.slice(0,8).forEach(p=>{
+    row.innerHTML+=`<div class="match-bubble" onclick="openChat(p)">
+      <img src="${p.img}" alt="${p.name}">
+      <p>${p.name}</p>
+    </div>`;
+  });
+  const list=document.getElementById('match-list');
+  list.innerHTML='';
+  profiles.forEach((p,i)=>{
+    list.innerHTML+=`<div class="match-row" onclick="openChat(p)">
+      <img class="match-avatar" src="${p.img}" alt="${p.name}">
+      <div class="match-info"><h4>${p.name}</h4><p>${msgs[i%msgs.length]}</p></div>
+      <span class="match-time">${Math.floor(Math.random()*23)+1}h</span>
+    </div>`;
+  });
+}
+
+// PHOTOS GRID
+function buildPhotos(){
+  const g=document.getElementById('photo-grid');
+  g.innerHTML='';
+  for(let i=0;i<9;i++){
+    if(i===0){
+      g.innerHTML+=`<div class="photo-slot"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="foto"></div>`;
+    }else{
+      g.innerHTML+=`<div class="photo-slot" onclick="alert('Agregar foto 📷')">+</div>`;
+    }
+  }
+}
+
+// LANGUAGES
+function buildLanguages(){
+  const list=document.getElementById('lang-list');
+  list.innerHTML='';
+  languages.forEach(([es,native])=>{
+    const sel=es===selLang;
+    list.innerHTML+=`<div class="lang-item ${sel?'sel':''}" onclick="selectLang('${es}',this)">
+      <span class="lang-name">${es}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="lang-native">${native}</span>
+        ${sel?'<span class="lang-check">✓</span>':''}
+      </div>
+    </div>`;
+  });
+}
+
+function selectLang(lang, el){
+  selLang=lang;
+  document.querySelectorAll('.lang-item').forEach(i=>{
+    i.classList.remove('sel');
+    i.querySelector('.lang-name').style.color='';
+    const chk=i.querySelector('.lang-check');
+    if(chk)chk.remove();
+  });
+  el.classList.add('sel');
+  el.querySelector('.lang-name').style.color='var(--pink)';
+  const div=el.querySelector('div');
+  div.innerHTML+=`<span class="lang-check">✓</span>`;
+  showToast(`🌐 Idioma: ${lang}`);
+}
+
+// NOTIF
+function buildNotifs(){
+  const list=document.getElementById('notif-list');
+  const items=[
+    {img:profiles[0].img,text:`<b>${profiles[0].name}</b> te dio un Like ❤️`,time:'hace 2 min'},
+    {img:profiles[1].img,text:`¡Tienes un nuevo match con <b>${profiles[1].name}</b>! 🎉`,time:'hace 15 min'},
+    {img:profiles[2].img,text:`<b>${profiles[2].name}</b> te envió un mensaje 💬`,time:'hace 1h'},
+    {img:profiles[3].img,text:`<b>${profiles[3].name}</b> te dio un Super Like ⭐`,time:'hace 2h'},
+    {img:profiles[4].img,text:'¡Tienes una promoción especial de Bind Gold! 💎',time:'hace 3h'},
+  ];
+  list.innerHTML='';
+  items.forEach(n=>{
+    list.innerHTML+=`<div class="notif-item">
+      <img src="${n.img}" alt="">
+      <div class="notif-info"><p>${n.text}</p><span>${n.time}</span></div>
+      <div class="notif-dot"></div>
+    </div>`;
+  });
+}
+
+// CHAT
+function openChat(p){
+  closeAll();
+  document.getElementById('chat-avatar').src=p.img;
+  document.getElementById('chat-name').textContent=p.name+', '+p.age;
+  const msgs=document.getElementById('chat-messages');
+  msgs.innerHTML=`
+    <div class="msg msg-in">¡Hola! 😊 ¿Cómo estás?</div>
+    <div class="msg msg-out">¡Muy bien, gracias! Vi tu perfil y me encantó ❤️</div>
+    <div class="msg msg-in">¡Qué lindo! A mí también me gustó el tuyo 😍</div>
+  `;
+  document.getElementById('chat-view').classList.add('active');
+}
+
+function closeChat(){
+  document.getElementById('chat-view').classList.remove('active');
+}
+
+function sendMsg(e){
+  if(e.key!=='Enter')return;
+  const inp=document.getElementById('chat-inp');
+  const text=inp.value.trim();
+  if(!text)return;
+  const msgs=document.getElementById('chat-messages');
+  const d=document.createElement('div');
+  d.className='msg msg-out';d.textContent=text;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+  inp.value='';
+  // Auto reply
+  setTimeout(()=>{
+    const replies=['😊 ¡Me encanta!','¿Cuándo nos vemos? ☕','¡Qué interesante! 🌟','jajaja 😂 ¡Exacto!','¡Totalmente de acuerdo! 🙌'];
+    const r=document.createElement('div');
+    r.className='msg msg-in';
+    r.textContent=replies[Math.floor(Math.random()*replies.length)];
+    msgs.appendChild(r);
+    msgs.scrollTop=msgs.scrollHeight;
+  },1000);
+}
+
+function tagToggle(el){el.classList.toggle('sel')}
+
+function toggleDark(){
+  document.body.style.background=document.body.style.background==='#1a0a12'?'#f7eef2':'#1a0a12';
+}
+
+// Close overlays clicking outside
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active')});
+});
+
+// Init
+init();
+</script>
+</body>
+</html>
