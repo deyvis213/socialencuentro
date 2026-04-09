@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bind – Conecta, conoce y encuentra tu match</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#fd3a6e;--pink2:#ff6b9d;--orange:#ff8c42;
+  --grad:linear-gradient(135deg,#fd3a6e 0%,#ff8c42 100%);
+  --dark:#1a0a12;--text:#1a0a12;--muted:#999;
+  --border:#f0e0e8;--light:#fff8fa;--shadow:0 4px 32px rgba(253,58,110,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:var(--text)}
+button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none;outline:none}
+input,select,textarea{font-family:'DM Sans',sans-serif;outline:none}
+
+/* SCREENS */
+.screen{display:none;width:100%;min-height:100vh}
+.screen.active{display:block}
+
+/* ═══════ LANDING ═══════ */
+#landing{background:#000;position:relative;overflow:hidden}
+.land-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:3px;opacity:.6;filter:brightness(.55)}
+.land-bg img{width:100%;height:100%;object-fit:cover}
+.land-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.4) 0%,rgba(0,0,0,.1) 45%,rgba(0,0,0,.75) 100%)}
+.land-nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 40px;flex-wrap:wrap;gap:12px}
+.land-logo{display:flex;align-items:center;gap:12px}
+.land-logo-icon{width:44px;height:44px;background:var(--grad);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(253,58,110,.4)}
+.land-logo-text{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:#fff;letter-spacing:-1px}
+.land-nav-links{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.nav-link{color:rgba(255,255,255,.9);font-size:14px;font-weight:600;padding:8px 13px;border-radius:8px;background:none;border:none;cursor:pointer;white-space:nowrap;transition:.15s}
+.nav-link:hover{background:rgba(255,255,255,.18);color:#fff}
+.nav-login{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);border-radius:24px;padding:9px 22px}
+.nav-login:hover{background:rgba(255,255,255,.28)}
+.land-hero{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:90px 20px 100px;text-align:center}
+.land-hero h1{font-family:'Playfair Display',serif;font-size:clamp(56px,9vw,108px);font-weight:900;color:#fff;line-height:1;letter-spacing:-4px;margin-bottom:16px;text-shadow:0 4px 40px rgba(0,0,0,.5)}
+.land-hero p{font-size:clamp(16px,2vw,21px);color:rgba(255,255,255,.85);font-weight:500;margin-bottom:48px;max-width:460px;line-height:1.5}
+.btn-cta{background:var(--grad);color:#fff;font-size:18px;font-weight:800;padding:18px 72px;border-radius:50px;box-shadow:0 8px 32px rgba(253,58,110,.5);transition:.2s;display:inline-block;border:none;cursor:pointer;letter-spacing:.3px}
+.btn-cta:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(253,58,110,.65)}
+
+/* ═══════ OVERLAYS ═══════ */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:28px;width:100%;max-width:440px;padding:36px 32px;position:relative;max-height:92vh;overflow-y:auto;animation:popIn .32s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
+.modal-x{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:#f5eef2;border:none;font-size:17px;display:flex;align-items:center;justify-content:center;color:#aaa;cursor:pointer;transition:.15s}
+.modal-x:hover{background:#fde0ea;color:var(--pink)}
+.modal h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:8px}
+.modal .legal{font-size:12px;color:#aaa;line-height:1.65;margin-bottom:20px}
+.modal .legal a{color:var(--pink)}
+.btn-social{display:flex;align-items:center;gap:12px;width:100%;padding:14px 18px;border-radius:14px;font-size:15px;font-weight:700;margin-bottom:10px;border:2px solid #f0e0e8;background:#fff;transition:.15s;cursor:pointer;color:var(--text)}
+.btn-social:hover{border-color:var(--pink);background:#fff5f8}
+.btn-social svg,.btn-social img{width:22px;height:22px;flex-shrink:0}
+.odivider{display:flex;align-items:center;gap:10px;color:#ccc;font-size:12px;margin:14px 0}
+.odivider::before,.odivider::after{content:'';flex:1;height:1px;background:#f0e0e8}
+.finp{width:100%;padding:14px 16px;border:2px solid #f0e0e8;border-radius:12px;font-size:15px;font-weight:500;transition:.15s;background:#fff;color:var(--text)}
+.finp:focus{border-color:var(--pink)}
+.btn-pink{background:var(--grad);color:#fff;font-size:16px;font-weight:800;padding:15px;border-radius:14px;width:100%;transition:.15s;border:none;cursor:pointer}
+.btn-pink:hover{opacity:.9;transform:translateY(-1px)}
+.btn-link{background:none;color:var(--pink);font-size:14px;font-weight:700;border:none;cursor:pointer;display:block;margin:12px auto 0;text-align:center}
+.store-row{display:flex;gap:10px;margin-top:18px}
+.store-btn{flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid #f0e0e8;border-radius:14px;background:#fff;cursor:pointer;transition:.15s}
+.store-btn:hover{border-color:var(--pink);background:#fff5f8}
+.store-btn svg{width:24px;height:24px;flex-shrink:0}
+.store-btn .s1{font-size:10px;color:#aaa;font-weight:500;display:block}
+.store-btn .s2{font-size:13px;font-weight:800;color:var(--text);display:block}
+
+/* ═══════ APP ═══════ */
+#app{display:none;flex-direction:column;height:100vh;overflow:hidden}
+#app.active{display:flex}
+.app-topnav{background:var(--grad);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 12px rgba(253,58,110,.25)}
+.app-logo{font-family:'Playfair Display',serif;font-size:25px;font-weight:900;color:#fff;letter-spacing:-1px}
+.app-nav-btns{display:flex;gap:6px}
+.anb{background:rgba(255,255,255,.2);border:none;border-radius:50%;width:36px;height:36px;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.anb:hover{background:rgba(255,255,255,.35)}
+.tab-bar{background:#fff;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;padding:13px 15px;font-size:13px;font-weight:700;color:#ccc;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;cursor:pointer;transition:.15s}
+.tab-btn.active{color:var(--pink);border-bottom-color:var(--pink)}
+.app-content{flex:1;overflow-y:auto;background:#fff8fa}
+.sec{display:none;min-height:100%}
+.sec.active{display:block}
+.bottom-bar{background:#fff;border-top:1px solid var(--border);display:flex;flex-shrink:0;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.bb-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 12px;background:none;border:none;color:#ccc;font-size:10px;font-weight:700;cursor:pointer;transition:.15s}
+.bb-icon{font-size:21px;transition:.15s}
+.bb-btn.active{color:var(--pink)}
+.bb-btn.active .bb-icon{transform:scale(1.15)}
+
+/* ═══════ SWIPE ═══════ */
+.swipe-wrap{padding:16px;display:flex;flex-direction:column;align-items:center}
+.card-stack{position:relative;width:100%;max-width:356px;height:500px;margin:0 auto}
+.scard{position:absolute;inset:0;border-radius:24px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.2);user-select:none;background:#eee}
+.scard img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.scard-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.83));padding:28px 20px 22px;color:#fff}
+.scard-name{font-size:26px;font-weight:800;line-height:1}
+.scard-meta{font-size:14px;opacity:.85;margin-top:4px}
+.scard-tag{display:inline-block;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;margin-top:8px}
+.scard:nth-child(2){transform:scale(.97) translateY(14px);z-index:1}
+.scard:nth-child(3){transform:scale(.94) translateY(28px);z-index:0}
+.scard:first-child{z-index:10}
+.swipe-label{position:absolute;top:28px;padding:6px 16px;border-radius:8px;border-width:3px;border-style:solid;font-size:20px;font-weight:900;letter-spacing:2px;opacity:0;pointer-events:none;transition:opacity .1s}
+.label-like{left:20px;color:#21c55d;border-color:#21c55d}
+.label-nope{right:20px;color:#ff4458;border-color:#ff4458}
+.swipe-actions{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px}
+.sab{border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.12);transition:.15s;cursor:pointer;background:#fff}
+.sab:hover{transform:scale(1.12)}
+.sab-rw{width:50px;height:50px;font-size:20px;color:#fbbf24}
+.sab-no{width:64px;height:64px;font-size:28px;color:#ff4458}
+.sab-st{width:50px;height:50px;font-size:20px;color:#38bdf8}
+.sab-lk{width:64px;height:64px;font-size:28px;color:#fd3a6e}
+.sab-bo{width:50px;height:50px;font-size:20px;color:#a855f7}
+
+/* ═══════ EXPLORE ═══════ */
+.expad{padding:16px}
+.cats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px;padding-bottom:4px}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:0 0 auto;padding:8px 18px;border-radius:20px;background:#fff;border:2px solid var(--border);font-size:13px;font-weight:700;color:#aaa;cursor:pointer;transition:.15s;white-space:nowrap}
+.cat.on,.cat:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.exgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.excrd{border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.excrd img{width:100%;height:100%;object-fit:cover;transition:.3s}
+.excrd:hover img{transform:scale(1.05)}
+.excrd-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:20px 12px 14px;color:#fff}
+.excrd-info h4{font-size:15px;font-weight:800}
+.excrd-info span{font-size:12px;opacity:.85}
+
+/* ═══════ LIKES ═══════ */
+.lkpad{padding:16px}
+.upbox{background:var(--grad);border-radius:20px;padding:20px;color:#fff;text-align:center;margin-bottom:18px}
+.upbox h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.upbox p{font-size:13px;opacity:.9;margin-bottom:14px}
+.btn-white{background:#fff;color:var(--pink);font-weight:800;padding:10px 28px;border-radius:24px;font-size:14px;cursor:pointer;border:none}
+.btn-white:hover{opacity:.9}
+.lkgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lkcrd{border-radius:18px;overflow:hidden;position:relative;aspect-ratio:3/4}
+.lkcrd img{width:100%;height:100%;object-fit:cover;filter:blur(8px) brightness(.7)}
+.lkcrd-info{position:absolute;bottom:0;left:0;right:0;padding:12px;color:#fff}
+.lkcrd-info h4{font-size:14px;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.lkbadge{position:absolute;top:10px;right:10px;background:var(--grad);color:#fff;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700}
+
+/* ═══════ MATCHES ═══════ */
+.mpad{padding:16px}
+.nmrow{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px;margin-bottom:8px}
+.nmrow::-webkit-scrollbar{display:none}
+.nmbub{flex:0 0 auto;text-align:center;cursor:pointer}
+.nmbub img{width:66px;height:66px;border-radius:50%;object-fit:cover;border:3px solid var(--pink)}
+.nmbub p{font-size:11px;font-weight:700;color:#aaa;margin-top:4px;max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clist{display:flex;flex-direction:column}
+.crow{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid #f5eef2;cursor:pointer;transition:.1s;border-radius:12px}
+.crow:hover{background:#fff5f8}
+.crow img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--pink);flex-shrink:0}
+.crow-info{flex:1}
+.crow-info h4{font-size:15px;font-weight:800}
+.crow-info p{font-size:13px;color:#aaa;margin-top:2px}
+.crow-time{font-size:11px;color:#ccc}
+.cunread{width:9px;height:9px;background:var(--pink);border-radius:50%;flex-shrink:0}
+
+/* ═══════ CHAT ═══════ */
+#chat-view{display:none;position:fixed;inset:0;background:#fff8fa;z-index:300;flex-direction:column}
+#chat-view.open{display:flex}
+.cvh{background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.cvback{background:none;border:none;font-size:22px;color:var(--pink);cursor:pointer;padding:0}
+.cvh img{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.cvh-info{flex:1}
+.cvh-info h4{font-size:15px;font-weight:800}
+.cvh-info span{font-size:12px;color:#21c55d;font-weight:600}
+.cvmsgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:74%;padding:12px 16px;border-radius:20px;font-size:14px;font-weight:500;line-height:1.5}
+.mi{background:#fff;align-self:flex-start;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.mo{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.cvinp-bar{background:#fff;border-top:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.cvinp-bar input{flex:1;padding:12px 16px;border:2px solid var(--border);border-radius:24px;font-size:14px;background:#fff8fa}
+.cvinp-bar input:focus{border-color:var(--pink)}
+.cvact{background:#f5eef2;border:none;border-radius:50%;width:40px;height:40px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cvsend{background:var(--grad);border:none;border-radius:50%;width:40px;height:40px;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* ═══════ PROFILE ═══════ */
+.profpad{padding:0 0 80px}
+.profhead{text-align:center;padding:24px 16px 16px;background:#fff;border-bottom:1px solid var(--border)}
+.profhead img{width:88px;height:88px;border-radius:50%;object-fit:cover;border:4px solid var(--pink);margin-bottom:10px}
+.profhead h2{font-size:22px;font-weight:800}
+.profhead p{font-size:13px;color:#aaa;margin-top:2px}
+.profphotos{padding:16px}
+.profphotos h3{font-size:15px;font-weight:800;margin-bottom:12px}
+.phgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.phslot{aspect-ratio:1;border-radius:14px;background:#f5eef2;border:2px dashed #f0a0b8;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--pink);cursor:pointer;overflow:hidden;position:relative}
+.phslot img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.phslot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.prevbtn{display:block;background:var(--grad);color:#fff;font-size:15px;font-weight:800;padding:14px;border-radius:14px;width:calc(100% - 32px);margin:0 16px 4px;text-align:center;cursor:pointer;border:none}
+.psec{background:#fff;border-radius:20px;margin:12px 16px;padding:18px;box-shadow:0 2px 12px rgba(253,58,110,.07)}
+.psec-title{font-size:14px;font-weight:800;color:var(--pink);margin-bottom:14px}
+.frow{margin-bottom:14px}
+.flabel{font-size:12px;font-weight:700;color:#bbb;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.finp2{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:12px;font-size:14px;font-weight:500;background:#fff8fa;color:var(--text);transition:.15s}
+.finp2:focus{border-color:var(--pink);background:#fff}
+.tagwrap{display:flex;flex-wrap:wrap;gap:8px}
+.ptag{padding:8px 16px;border-radius:20px;border:2px solid var(--border);font-size:13px;font-weight:700;color:#bbb;cursor:pointer;transition:.15s;background:#fff}
+.ptag.on{background:var(--pink);color:#fff;border-color:var(--pink)}
+.goalsgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.goalcard{border:2px solid var(--border);border-radius:16px;padding:14px 12px;text-align:center;cursor:pointer;transition:.15s;background:#fff}
+.goalcard:hover,.goalcard.on{border-color:var(--pink);background:#fff5f8}
+.gc-icon{font-size:24px;margin-bottom:6px}
+.gc-text{font-size:12px;font-weight:700;color:#888;line-height:1.3}
+.goalcard.on .gc-text{color:var(--pink)}
+.trow{display:flex;align-items:center;justify-content:space-between;padding:4px 0;margin-bottom:12px}
+.trow label{font-size:14px;font-weight:600}
+.tog{width:46px;height:26px;background:#ddd;border-radius:13px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.tog.on{background:var(--pink)}
+.tog::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tog.on::after{left:23px}
+.connbtn{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:14px;border:2px solid var(--border);background:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;transition:.15s}
+.connbtn:hover{border-color:var(--pink)}
+.cbarrow{margin-left:auto;color:var(--pink);font-size:13px}
+
+/* ═══════ SECURITY ═══════ */
+.secpad{padding:16px 16px 80px}
+.seccrd{background:#fff;border-radius:20px;padding:18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(253,58,110,.07)}
+.seccrd-title{font-size:15px;font-weight:800;color:var(--pink);margin-bottom:14px}
+.secitem{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;font-size:14px;font-weight:500;line-height:1.4}
+.secitem:last-child{margin-bottom:0}
+.secico{font-size:18px;flex-shrink:0}
+
+/* ═══════ SETTINGS ═══════ */
+.setpad{padding:16px 16px 80px}
+.plancard{border-radius:20px;padding:20px;color:#fff;margin-bottom:10px;position:relative;overflow:hidden}
+.plan-pl{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
+.plan-go{background:linear-gradient(135deg,#8B6914,#d4a017,#f5d44e)}
+.plan-li{background:linear-gradient(135deg,#fd3a6e,#ff8c42)}
+.plancard h3{font-size:20px;font-weight:800;margin-bottom:4px}
+.plancard p{font-size:13px;opacity:.85;margin-bottom:14px}
+.planbadge{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700}
+.setgrp{background:#fff;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(253,58,110,.07)}
+.setitem{display:flex;align-items:center;gap:14px;padding:15px 18px;border-bottom:1px solid #f5eef2;cursor:pointer;transition:.1s}
+.setitem:last-child{border-bottom:none}
+.setitem:hover{background:#fff5f8}
+.siico{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+.siinfo{flex:1}
+.siinfo h4{font-size:15px;font-weight:700}
+.siinfo p{font-size:12px;color:#bbb;margin-top:2px}
+.siarrow{color:#ddd;font-size:18px}
+
+/* ═══════ LANGUAGE ═══════ */
+.langpad{padding:16px 16px 80px}
+.langpad h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:16px}
+.langlist{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 12px rgba(253,58,110,.07)}
+.langitem{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #f5eef2;cursor:pointer;transition:.1s}
+.langitem:last-child{border-bottom:none}
+.langitem:hover{background:#fff5f8}
+.langitem.sel .lname{color:var(--pink);font-weight:800}
+.lname{font-size:14px;font-weight:600}
+.lnat{font-size:13px;color:#bbb}
+.lchk{color:var(--pink);font-weight:800;font-size:16px}
+
+/* ═══════ NOTIF ═══════ */
+.notifitem{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid #f5eef2}
+.notifitem img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.notifinfo p{font-size:14px;font-weight:600;line-height:1.4}
+.notifinfo span{font-size:12px;color:#bbb}
+.notifdot{width:8px;height:8px;background:var(--pink);border-radius:50%;flex-shrink:0}
+
+/* ═══════ MISC ═══════ */
+.sttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(26,10,18,.9);color:#fff;padding:10px 24px;border-radius:30px;font-size:14px;font-weight:700;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;display:none}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#f0d0dc;border-radius:4px}
+@media(max-width:600px){.land-bg{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}.land-nav{padding:14px 18px}.nav-link{font-size:12px;padding:7px 9px}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LANDING ═══════════════ -->
+<div id="landing" class="screen active">
+  <div class="land-bg">
+    <img src="https://randomuser.me/api/portraits/women/1.jpg" alt=""><img src="https://randomuser.me/api/portraits/men/1.jpg" alt="">
+    <img src="https://randomuser.me/api/portraits/women/2.jpg" alt=""><img src="https://randomuser.me/api/portraits/men/2.jpg" alt="">
+    <img src="https://randomuser.me/api/portraits/women/3.jpg" alt=""><img src="https://randomuser.me/api/portraits/men/3.jpg" alt="">
+    <img src="https://randomuser.me/api/portraits/women/4.jpg" alt=""><img src="https://randomuser.me/api/portraits/men/4.jpg" alt="">
+    <img src="https://randomuser.me/api/portraits/women/5.jpg" alt=""><img src="https://randomuser.me/api/portraits/men/5.jpg" alt="">
+    <img src="https://randomuser.me/api/portraits/women/6.jpg" alt=""><img src="https://randomuser.me/api/portraits/men/6.jpg" alt="">
+  </div>
+  <div class="land-overlay"></div>
+
+  <nav class="land-nav">
+    <div class="land-logo">
+      <div class="land-logo-icon">💖</div>
+      <span class="land-logo-text">Bind</span>
+    </div>
+    <div class="land-nav-links">
+      <button class="nav-link">Productos</button>
+      <button class="nav-link">Más información</button>
+      <button class="nav-link">Seguridad</button>
+      <button class="nav-link">Asistencia</button>
+      <button class="nav-link">Descarga</button>
+      <button class="nav-link" onclick="openOv('ov-lang')">🌐 Idioma</button>
+      <button class="nav-link nav-login" onclick="openOv('ov-auth')">Iniciar sesión</button>
+    </div>
+  </nav>
+
+  <div class="land-hero">
+    <h1>Swipe Right™</h1>
+    <p>Conecta, conoce y encuentra tu match ❤️ Más de 55 mil millones de conexiones en todo el mundo.</p>
+    <button class="btn-cta" onclick="openOv('ov-auth')">Crear cuenta</button>
+  </div>
+</div>
+
+<!-- ═══════════════ AUTH ═══════════════ -->
+<div id="ov-auth" class="overlay" onclick="bgC(event,'ov-auth')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeOv('ov-auth')">✕</button>
+    <h2>Empieza ahora 🔥</h2>
+    <p class="legal">Al hacer click en Iniciar sesión o Continuar, aceptas nuestros <a href="#">Términos</a>. Conoce cómo procesamos tus datos en nuestra <a href="#">política de privacidad</a> y <a href="#">política sobre cookies</a>.</p>
+    <button class="btn-social" onclick="goApp()">
+      <svg viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuar con Google
+    </button>
+    <button class="btn-social" onclick="goApp()">
+      <svg viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Continuar con Facebook
+    </button>
+    <button class="btn-social" onclick="goApp()">
+      <svg viewBox="0 0 24 24" fill="none"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect width="20" height="20" x="2" y="2" rx="5" fill="url(#ig)"/><circle cx="12" cy="12" r="3.5" stroke="white" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="white"/></svg>
+      Continuar con Instagram
+    </button>
+    <button class="btn-social" onclick="openOv('ov-phone');closeOv('ov-auth')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fd3a6e" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 015.12 12.63a19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Inicia sesión con tu teléfono
+    </button>
+    <button class="btn-link" onclick="closeOv('ov-auth');openOv('ov-forgot')">¿Problemas para iniciar sesión?</button>
+    <div class="odivider">¡Descarga la app!</div>
+    <div class="store-row">
+      <button class="store-btn">
+        <svg viewBox="0 0 24 24" fill="#000"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div><span class="s1">Descárgalo en el</span><span class="s2">App Store</span></div>
+      </button>
+      <button class="store-btn">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 20.5v-17c0-.83 1-.83 1.5-.5l16 8.5-16 8.5c-.5.33-1.5.33-1.5-.5z" fill="#4CAF50"/><path d="M3 20.5L14.5 9 3 3.5v17z" fill="#2196F3"/><path d="M3 20.5L14.5 9 20 12l-17 8.5z" fill="#F44336"/><path d="M20 12L3 3.5l11.5 5.5L20 12z" fill="#FFC107"/></svg>
+        <div><span class="s1">Disponible en</span><span class="s2">Google Play</span></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Phone -->
+<div id="ov-phone" class="overlay" onclick="bgC(event,'ov-phone')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeOv('ov-phone')">✕</button>
+    <h2>📱 Tu número</h2>
+    <p class="legal">Ingresa tu número. Te enviamos un código SMS.</p>
+    <input class="finp" type="tel" placeholder="+1 000 000 0000" style="margin-bottom:14px">
+    <button class="btn-pink" onclick="closeOv('ov-phone');openOv('ov-sms')">Enviar código SMS</button>
+  </div>
+</div>
+
+<!-- SMS -->
+<div id="ov-sms" class="overlay" onclick="bgC(event,'ov-sms')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeOv('ov-sms')">✕</button>
+    <h2>🔐 Verificar SMS</h2>
+    <p class="legal">Código de 6 dígitos enviado a tu número</p>
+    <input class="finp" type="text" maxlength="6" placeholder="000000" style="letter-spacing:14px;font-size:26px;text-align:center;margin-bottom:14px">
+    <button class="btn-pink" onclick="closeOv('ov-sms');openOv('ov-terms')">Verificar</button>
+    <button class="btn-link">Reenviar código</button>
+  </div>
+</div>
+
+<!-- Terms -->
+<div id="ov-terms" class="overlay" onclick="bgC(event,'ov-terms')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeOv('ov-terms')">✕</button>
+    <h2>📋 Términos y condiciones</h2>
+    <div style="background:#fff8fa;border-radius:14px;padding:14px;margin-bottom:16px;font-size:13px;max-height:200px;overflow-y:auto;color:#666;line-height:1.7">
+      <b>1. Uso:</b> Bind es exclusivamente para adultos mayores de 18 años.<br><br>
+      <b>2. Privacidad:</b> Tus datos se tratan conforme a nuestra política de privacidad vigente.<br><br>
+      <b>3. Conducta:</b> Tolerancia cero a acoso, discurso de odio y contenido inapropiado.<br><br>
+      <b>4. Contenido:</b> Las fotos deben ser reales y apropiadas.<br><br>
+      <b>5. Suscripciones:</b> Los planes de pago se renuevan automáticamente salvo cancelación.
+    </div>
+    <button class="btn-pink" onclick="closeOv('ov-terms');goApp()">✓ Acepto y continuar</button>
+  </div>
+</div>
+
+<!-- Forgot -->
+<div id="ov-forgot" class="overlay" onclick="bgC(event,'ov-forgot')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeOv('ov-forgot')">✕</button>
+    <h2>🔑 Recuperar cuenta</h2>
+    <p class="legal">Ingresa tu email y te enviamos un enlace.</p>
+    <input class="finp" type="email" placeholder="tucorreo@email.com" style="margin-bottom:14px">
+    <button class="btn-pink" onclick="toast('📧 Enlace enviado. Revisa tu correo.');closeOv('ov-forgot')">Enviar enlace</button>
+  </div>
+</div>
+
+<!-- Language overlay (landing) -->
+<div id="ov-lang" class="overlay" onclick="bgC(event,'ov-lang')">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-x" onclick="closeOv('ov-lang')">✕</button>
+    <h2>🌐 Seleccionar Idioma</h2>
+    <div id="lang-land" style="max-height:420px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Notif -->
+<div id="ov-notif" class="overlay" onclick="bgC(event,'ov-notif')">
+  <div class="modal" style="max-height:85vh;overflow-y:auto">
+    <button class="modal-x" onclick="closeOv('ov-notif')">✕</button>
+    <h2>🔔 Notificaciones</h2>
+    <div id="notif-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+  <div class="app-topnav">
+    <div class="app-logo">💖 Bind</div>
+    <div class="app-nav-btns">
+      <button class="anb" onclick="openOv('ov-notif')">🔔</button>
+      <button class="anb" onclick="goLanding()">🚪</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-t="swipe" onclick="goTab('swipe')">🏠 Inicio</button>
+    <button class="tab-btn" data-t="auth" onclick="openOv('ov-auth')">🔑 Iniciar sesión</button>
+    <button class="tab-btn" data-t="profile" onclick="goTab('profile')">👤 Perfil</button>
+    <button class="tab-btn" data-t="security" onclick="goTab('security')">🛡️ Seguridad</button>
+    <button class="tab-btn" data-t="settings" onclick="goTab('settings')">⚙️ Ajuste</button>
+    <button class="tab-btn" data-t="language" onclick="goTab('language')">🌐 Idioma</button>
+  </div>
+
+  <div class="app-content">
+
+    <!-- SWIPE -->
+    <div id="sec-swipe" class="sec active">
+      <div class="swipe-wrap">
+        <div class="card-stack" id="card-stack"></div>
+        <div class="swipe-actions">
+          <button class="sab sab-rw" onclick="doSwipe('rewind')" title="Rewind">🔄</button>
+          <button class="sab sab-no" onclick="doSwipe('dislike')" title="No">✖</button>
+          <button class="sab sab-st" onclick="doSwipe('super')" title="Super Like">⭐</button>
+          <button class="sab sab-lk" onclick="doSwipe('like')" title="Like">❤</button>
+          <button class="sab sab-bo" onclick="doSwipe('boost')" title="Boost">⚡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div id="sec-explore" class="sec">
+      <div class="expad">
+        <div class="sttl">Descubrir ✨</div>
+        <div class="cats">
+          <button class="cat on">Todo</button>
+          <button class="cat" onclick="catSel(this)">🎵 Música</button>
+          <button class="cat" onclick="catSel(this)">⚽ Deporte</button>
+          <button class="cat" onclick="catSel(this)">✈️ Viajes</button>
+          <button class="cat" onclick="catSel(this)">🎨 Arte</button>
+          <button class="cat" onclick="catSel(this)">🍕 Gastronomía</button>
+          <button class="cat" onclick="catSel(this)">🎮 Gaming</button>
+          <button class="cat" onclick="catSel(this)">📚 Libros</button>
+          <button class="cat" onclick="catSel(this)">🌍 Bind Passport</button>
+          <button class="cat" onclick="catSel(this)">🎉 Eventos</button>
+          <button class="cat" onclick="catSel(this)">🎓 Bind U</button>
+        </div>
+        <div class="exgrid" id="ex-grid"></div>
+      </div>
+    </div>
+
+    <!-- LIKES -->
+    <div id="sec-likes" class="sec">
+      <div class="lkpad">
+        <div class="upbox">
+          <h3>👁️ Ve quién te dio Like</h3>
+          <p>Actualiza a Bind Gold para ver todos tus admiradores</p>
+          <button class="btn-white" onclick="goTab('settings')">Ver planes 💎</button>
+        </div>
+        <div class="sttl">Likes recibidos ❤️</div>
+        <div class="lkgrid" id="lk-grid"></div>
+        <div style="margin-top:20px">
+          <div class="sttl">Actividad reciente</div>
+          <div id="activity-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCHES -->
+    <div id="sec-matches" class="sec">
+      <div class="mpad">
+        <div class="sttl">Nuevos Matches 🎉</div>
+        <div class="nmrow" id="nm-row"></div>
+        <div class="sttl">Mensajes 💬</div>
+        <div class="clist" id="chat-list"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="sec-profile" class="sec">
+      <div class="profpad">
+        <div class="profhead">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="mi foto">
+          <h2>Mi Perfil</h2>
+          <p>Completa tu perfil para más matches ✨</p>
+        </div>
+
+        <div class="profphotos">
+          <h3>📸 Mis fotos</h3>
+          <div class="phgrid" id="ph-grid"></div>
+          <button class="prevbtn" onclick="toast('Vista previa del perfil 👀')">Vista previa del perfil</button>
+        </div>
+
+        <!-- SOBRE MÍ -->
+        <div class="psec">
+          <div class="psec-title">✏️ Sobre mí</div>
+          <div class="frow"><label class="flabel">Nombre</label><input class="finp2" type="text" placeholder="Tu nombre" value="María"></div>
+          <div class="frow"><label class="flabel">Edad</label><input class="finp2" type="number" value="24"></div>
+          <div class="frow"><label class="flabel">Biografía</label><textarea class="finp2" rows="3" placeholder="Cuéntanos algo sobre ti...">Amante de los viajes, la música y los buenos momentos ☀️</textarea></div>
+          <div class="frow"><label class="flabel">Puesto</label><input class="finp2" type="text" placeholder="Tu cargo o puesto..."></div>
+          <div class="frow"><label class="flabel">Compañía</label><input class="finp2" type="text" placeholder="Donde trabajas..."></div>
+          <div class="frow"><label class="flabel">Centro de estudios</label><input class="finp2" type="text" placeholder="Universidad o institución..."></div>
+          <div class="frow"><label class="flabel">Donde vivo</label><input class="finp2" type="text" placeholder="Tu ciudad..."></div>
+          <div class="frow"><label class="flabel">Género</label>
+            <select class="finp2"><option>Mujer</option><option>Hombre</option><option>No binario</option><option>Transgénero</option><option>Prefiero no decirlo</option></select>
+          </div>
+          <div class="frow"><label class="flabel">Orientación sexual</label>
+            <select class="finp2"><option>Heterosexual</option><option>Homosexual</option><option>Bisexual</option><option>Pansexual</option><option>Asexual</option><option>Prefiero no decirlo</option></select>
+          </div>
+        </div>
+
+        <!-- ELIGE UNA FRASE -->
+        <div class="psec">
+          <div class="psec-title">💬 Elige una frase</div>
+          <select class="finp2">
+            <option>Una frase que te defina...</option>
+            <option>Viviendo al máximo 🌟</option>
+            <option>En busca de aventuras ✈️</option>
+            <option>La vida es mejor con risas 😄</option>
+            <option>Amante del café y de las buenas conversaciones ☕</option>
+            <option>Buscando mi otra mitad 💘</option>
+          </select>
+        </div>
+
+        <!-- INTERESES -->
+        <div class="psec">
+          <div class="psec-title">🏷️ Intereses</div>
+          <div class="tagwrap">
+            <span class="ptag on" onclick="this.classList.toggle('on')">🎵 Música</span>
+            <span class="ptag on" onclick="this.classList.toggle('on')">✈️ Viajes</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">📸 Fotografía</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🍕 Gastronomía</span>
+            <span class="ptag on" onclick="this.classList.toggle('on')">🏋️ Fitness</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🎮 Gaming</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">📚 Lectura</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🌿 Naturaleza</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🎨 Arte</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🎬 Cine</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🍷 Vinos</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🐶 Mascotas</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">☕ Café</span>
+            <span class="ptag" onclick="this.classList.toggle('on')">🎭 Teatro</span>
+          </div>
+        </div>
+
+        <!-- ALTURA -->
+        <div class="psec">
+          <div class="psec-title">📏 Altura</div>
+          <select class="finp2">
+            <option>Selecciona tu altura</option>
+            <option>150 cm</option><option>155 cm</option><option>160 cm</option><option>165 cm</option>
+            <option>170 cm</option><option>175 cm</option><option>180 cm</option><option>185 cm</option>
+            <option>190 cm</option><option>195 cm</option><option>200 cm+</option>
+          </select>
+        </div>
+
+        <!-- METAS DE RELACIÓN -->
+        <div class="psec">
+          <div class="psec-title">💞 Metas de tu relación</div>
+          <div class="goalsgrid">
+            <div class="goalcard on" onclick="this.classList.toggle('on')"><div class="gc-icon">💑</div><div class="gc-text">Pareja estable</div></div>
+            <div class="goalcard" onclick="this.classList.toggle('on')"><div class="gc-icon">🤷</div><div class="gc-text">Pareja estable pero no me cierro</div></div>
+            <div class="goalcard" onclick="this.classList.toggle('on')"><div class="gc-icon">🌊</div><div class="gc-text">Nada serio pero veremos</div></div>
+            <div class="goalcard" onclick="this.classList.toggle('on')"><div class="gc-icon">🎉</div><div class="gc-text">Nada serio</div></div>
+            <div class="goalcard" onclick="this.classList.toggle('on')"><div class="gc-icon">👫</div><div class="gc-text">Hacer amigos</div></div>
+            <div class="goalcard" onclick="this.classList.toggle('on')"><div class="gc-icon">🤔</div><div class="gc-text">Sigo pensando</div></div>
+          </div>
+        </div>
+
+        <!-- MÁS SOBRE MÍ -->
+        <div class="psec">
+          <div class="psec-title">🔎 Más sobre mí</div>
+          <div class="frow"><label class="flabel">♈ Zodiaco</label>
+            <select class="finp2"><option>Selecciona tu signo</option><option>♈ Aries</option><option>♉ Tauro</option><option>♊ Géminis</option><option>♋ Cáncer</option><option>♌ Leo</option><option>♍ Virgo</option><option>♎ Libra</option><option>♏ Escorpio</option><option>♐ Sagitario</option><option>♑ Capricornio</option><option>♒ Acuario</option><option>♓ Piscis</option></select>
+          </div>
+          <div class="frow"><label class="flabel">🎓 Educación</label>
+            <select class="finp2"><option>Selecciona nivel</option><option>Secundaria</option><option>Técnico</option><option>Licenciatura</option><option>Maestría</option><option>Doctorado</option><option>Posdoctorado</option></select>
+          </div>
+          <div class="frow"><label class="flabel">👶 Planes familiares</label>
+            <select class="finp2"><option>Selecciona opción</option><option>Quiero hijos</option><option>No quiero hijos</option><option>Ya tengo hijos</option><option>No estoy seguro/a</option><option>Abierto a la posibilidad</option></select>
+          </div>
+          <div class="frow"><label class="flabel">💬 Estilo de comunicación</label>
+            <select class="finp2"><option>¿Cómo te comunicas?</option><option>Directo y claro</option><option>Diplomático y cuidadoso</option><option>Con humor siempre</option><option>Escucho más que hablo</option><option>Muy expresivo/a</option></select>
+          </div>
+          <div class="frow"><label class="flabel">💝 Estilo de amor</label>
+            <select class="finp2"><option>¿Cómo expresas amor?</option><option>Palabras de afirmación</option><option>Actos de servicio</option><option>Tiempo de calidad</option><option>Toque físico</option><option>Regalos</option></select>
+          </div>
+        </div>
+
+        <!-- ESTILO DE VIDA -->
+        <div class="psec">
+          <div class="psec-title">🌟 Estilo de vida</div>
+          <div class="frow"><label class="flabel">🐾 Mascotas</label>
+            <select class="finp2"><option>Selecciona opción</option><option>Tengo perro(s)</option><option>Tengo gato(s)</option><option>Otros animales</option><option>No tengo mascotas</option><option>Quiero mascotas</option><option>Alérgico/a</option></select>
+          </div>
+          <div class="frow"><label class="flabel">🍷 Beber</label>
+            <select class="finp2"><option>Selecciona opción</option><option>No bebo</option><option>Raramente</option><option>Socialmente</option><option>Frecuentemente</option></select>
+          </div>
+          <div class="frow"><label class="flabel">🚬 ¿Cada cuánto fumas?</label>
+            <select class="finp2"><option>Selecciona opción</option><option>No fumo</option><option>Raramente</option><option>Cuando salgo</option><option>Regularmente</option><option>Frecuentemente</option></select>
+          </div>
+        </div>
+
+        <!-- BUSCO -->
+        <div class="psec">
+          <div class="psec-title">🔍 Busco</div>
+          <div class="frow"><label class="flabel">Prefiero conocer</label>
+            <select class="finp2"><option>Mujeres</option><option>Hombres</option><option>Todos</option><option>No binario</option></select>
+          </div>
+          <div class="frow"><label class="flabel">Rango de edad</label>
+            <div style="display:flex;gap:10px">
+              <input class="finp2" type="number" placeholder="Mín" value="18" style="flex:1">
+              <input class="finp2" type="number" placeholder="Máx" value="35" style="flex:1">
+            </div>
+          </div>
+          <div class="frow"><label class="flabel">📍 Distancia máxima</label>
+            <input type="range" min="2" max="160" value="25" style="width:100%;accent-color:var(--pink)" oninput="this.nextElementSibling.textContent=this.value+' km'">
+            <p style="font-size:13px;color:#bbb;margin-top:4px">25 km</p>
+          </div>
+        </div>
+
+        <!-- PREGUNTAS -->
+        <div class="psec">
+          <div class="psec-title">❓ Preguntas sobre mí</div>
+          <p style="font-size:13px;color:#bbb;margin-bottom:14px">Agrega preguntas para que otros te conozcan mejor</p>
+          <button class="connbtn" onclick="toast('Función de preguntas próximamente 🚀')">
+            <span style="font-size:20px">💭</span><span>Agregar pregunta</span><span class="cbarrow">+ Añadir →</span>
+          </button>
+        </div>
+
+        <!-- SUBIR ARCHIVOS -->
+        <div class="psec">
+          <div class="psec-title">📁 Subir archivos de fotos</div>
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:2px dashed var(--pink);background:#fff5f8;cursor:pointer;font-size:14px;font-weight:700;color:var(--pink)">
+            <span style="font-size:22px">📂</span><span>Seleccionar desde archivos</span>
+            <input type="file" accept="image/*" multiple style="display:none" onchange="handleFiles(this)">
+          </label>
+          <div id="file-prev" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"></div>
+        </div>
+
+        <!-- OPCIONES DE FOTOS -->
+        <div class="psec">
+          <div class="psec-title">🖼️ Opciones de fotos</div>
+          <div class="setgrp" style="margin-bottom:0;box-shadow:none">
+            <div class="setitem" onclick="toast('Tomar selfie 📷')"><span class="siico">🤳</span><div class="siinfo"><h4>Tomar selfie ahora</h4></div><span class="siarrow">›</span></div>
+            <div class="setitem" onclick="toast('Abrir galería 🖼️')"><span class="siico">🖼️</span><div class="siinfo"><h4>Abrir galería</h4></div><span class="siarrow">›</span></div>
+            <div class="setitem" onclick="toast('Importar de Instagram 📷')"><span class="siico">📷</span><div class="siinfo"><h4>Importar de Instagram</h4></div><span class="siarrow">›</span></div>
+            <div class="setitem" onclick="toast('Ordenar fotos 🔃')"><span class="siico">🔃</span><div class="siinfo"><h4>Ordenar fotos</h4></div><span class="siarrow">›</span></div>
+          </div>
+        </div>
+
+        <!-- CONECTAR -->
+        <div class="psec">
+          <div class="psec-title">🔗 Conectar cuentas</div>
+          <button class="connbtn" onclick="toast('Conectando Instagram 📷')"><span style="font-size:20px">📷</span><span>Conectar Instagram</span><span class="cbarrow">Conectar →</span></button>
+          <button class="connbtn" onclick="toast('Conectando Spotify 🎵')"><span style="font-size:20px">🎵</span><span>Conectar Spotify</span><span class="cbarrow">Conectar →</span></button>
+          <button class="connbtn" onclick="toast('Iniciando verificación selfie 📸')"><span style="font-size:20px">✅</span><span>Verificación de perfil (selfie)</span><span class="cbarrow">Verificar →</span></button>
+        </div>
+
+        <!-- CONTROLA TU PERFIL -->
+        <div class="psec">
+          <div class="psec-title">🎛️ Controla tu perfil</div>
+          <div class="trow"><label>No mostrar mi edad</label><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+          <div class="trow"><label>No mostrar mi distancia</label><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+
+        <button class="prevbtn" style="margin-bottom:24px" onclick="toast('Perfil guardado ✅')">💾 Guardar perfil</button>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div id="sec-security" class="sec">
+      <div class="secpad">
+        <div class="sttl">🛡️ CENTRO DE SEGURIDAD</div>
+        <div class="seccrd">
+          <div class="seccrd-title">🛡️ Herramientas de Protección</div>
+          <div class="secitem"><span class="secico">🚫</span><span>Prohíben armas en las fotos de perfil.</span></div>
+          <div class="secitem"><span class="secico">🤝</span><span>Tolerancia cero al discurso de odio y acoso.</span></div>
+          <div class="secitem"><span class="secico">📞</span><span>Videollamadas y llamadas dentro de la app.</span></div>
+          <div class="secitem"><span class="secico">📸</span><span>Verificación por foto para confirmar identidad.</span></div>
+          <div class="secitem"><span class="secico">👁️</span><span>Private Detector: desenfoque de imágenes explícitas.</span></div>
+          <div class="secitem"><span class="secico">🤖</span><span>Deception Detector™: IA que previene estafas.</span></div>
+        </div>
+        <div class="seccrd">
+          <div class="seccrd-title">📲 Control de tu experiencia</div>
+          <div class="secitem"><span class="secico">🔹</span><span>Definir quién puede enviarte mensajes.</span></div>
+          <div class="secitem"><span class="secico">🔹</span><span>Elegir si otros ven tu estado en línea.</span></div>
+          <div class="secitem"><span class="secico">📌</span><span>Detectar y protegerte contra acoso online.</span></div>
+          <div class="secitem"><span class="secico">📌</span><span>Evitar difusión de contenido privado (bloqueo capturas).</span></div>
+        </div>
+        <div class="seccrd">
+          <div class="seccrd-title">📍 Consejos</div>
+          <div class="secitem"><span class="secico">❌</span><span>No compartas contraseñas ni datos financieros.</span></div>
+          <div class="secitem"><span class="secico">❌</span><span>No des tu dirección o ubicación específica.</span></div>
+        </div>
+        <div class="seccrd">
+          <div class="seccrd-title">🚨 Reportar / Bloquear</div>
+          <button class="btn-pink" style="margin-bottom:10px" onclick="toast('🚩 Función de reporte activada')">🚩 Reportar usuario</button>
+          <button class="btn-pink" style="background:#555;margin-top:0" onclick="toast('🚫 Usuario bloqueado')">🚫 Bloquear usuario</button>
+        </div>
+        <div class="seccrd">
+          <div class="seccrd-title">🆔 Verificación de identidad</div>
+          <p style="font-size:14px;color:#aaa;margin-bottom:14px">Verifica tu identidad para obtener la insignia ✓</p>
+          <button class="btn-pink" onclick="toast('Iniciando verificación 📷')">Verificar identidad</button>
+        </div>
+        <div class="seccrd">
+          <div class="seccrd-title">❓ Centro de ayuda</div>
+          <button class="connbtn" onclick="toast('Abriendo chat con soporte 💬')"><span style="font-size:20px">💬</span><span>Chat con soporte</span><span class="cbarrow">›</span></button>
+          <button class="connbtn" onclick="toast('Abriendo FAQ 📖')"><span style="font-size:20px">📖</span><span>Preguntas frecuentes</span><span class="cbarrow">›</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="sec-settings" class="sec">
+      <div class="setpad">
+        <div class="sttl">CONFIGURACIÓN ⚙️</div>
+        <div class="plancard plan-pl"><div class="planbadge">👑 PREMIUM</div><h3>💎 Bind Platinum</h3><p>Likes ilimitados, mensajes antes del match, prioridad en recomendaciones, Top Picks diarios</p><button class="btn-white" onclick="toast('Ver plan Platinum 💎')">Ver plan</button></div>
+        <div class="plancard plan-go"><div class="planbadge">⭐ POPULAR</div><h3>🥇 Bind Gold</h3><p>Ve quién te dio Like, Passport global, Boost mensual incluido, Super Likes ilimitados</p><button class="btn-white" onclick="toast('Ver plan Gold 🥇')">Ver plan</button></div>
+        <div class="plancard plan-li"><div class="planbadge">🔥 OFERTA</div><h3>⚡ Bind Limitado</h3><p>Boosts, Super Likes y Rewinds a precios especiales por tiempo limitado</p><button class="btn-white" onclick="toast('Ver oferta ⚡')">Ver oferta</button></div>
+        <div class="setgrp">
+          <div class="setitem"><span class="siico">⚙️</span><div class="siinfo"><h4>Ajustes de cuenta</h4><p>Email, contraseña, número</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">🔍</span><div class="siinfo"><h4>Preferencias de búsqueda</h4><p>Edad, distancia, género</p></div><span class="siarrow">›</span></div>
+        </div>
+        <div class="setgrp">
+          <div class="setitem"><span class="siico">🔔</span><div class="siinfo"><h4>Notificaciones</h4><p>Matches, mensajes, likes</p></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setitem"><span class="siico">📍</span><div class="siinfo"><h4>Ubicación activa</h4><p>Permitir acceso a tu ubicación</p></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setitem"><span class="siico">🕵️</span><div class="siinfo"><h4>Modo incógnito</h4><p>Sé invisible al explorar</p></div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setitem"><span class="siico">🌙</span><div class="siinfo"><h4>Modo oscuro</h4></div><div class="tog" onclick="this.classList.toggle('on');toggleDark()"></div></div>
+        </div>
+        <div class="setgrp">
+          <div class="setitem"><span class="siico">🔒</span><div class="siinfo"><h4>Privacidad</h4><p>Controla quién te ve</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">🚫</span><div class="siinfo"><h4>Bloqueos</h4><p>Usuarios bloqueados</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">🎓</span><div class="siinfo"><h4>Bind U</h4><p>Conecta con tu campus universitario</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">🌍</span><div class="siinfo"><h4>Bind Passport</h4><p>Cambia tu ubicación globalmente</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">🏆</span><div class="siinfo"><h4>Top Picks</h4><p>Selecciones destacadas del día</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">⚡</span><div class="siinfo"><h4>Comprar Boost</h4><p>Más visibilidad por 30 minutos</p></div><span class="siarrow">›</span></div>
+          <div class="setitem"><span class="siico">⭐</span><div class="siinfo"><h4>Comprar Super Likes</h4></div><span class="siarrow">›</span></div>
+        </div>
+        <div class="setgrp">
+          <div class="setitem" onclick="if(confirm('¿Cerrar sesión?'))goLanding()"><span class="siico">🚪</span><div class="siinfo"><h4>Cerrar sesión</h4></div><span class="siarrow">›</span></div>
+          <div class="setitem" onclick="if(confirm('¿Eliminar cuenta? No se puede deshacer.'))toast('Cuenta eliminada')"><span class="siico">🗑️</span><div class="siinfo"><h4 style="color:#ff4458">Eliminar cuenta</h4></div><span class="siarrow">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANGUAGE -->
+    <div id="sec-language" class="sec">
+      <div class="langpad">
+        <div class="sttl">🌐 Seleccionar Idioma</div>
+        <div class="langlist" id="lang-app"></div>
+      </div>
+    </div>
+
+  </div><!-- /app-content -->
+
+  <div class="bottom-bar">
+    <button class="bb-btn active" data-t="swipe" onclick="goTab('swipe')"><span class="bb-icon">🏠</span><span>Inicio</span></button>
+    <button class="bb-btn" data-t="explore" onclick="goTab('explore')"><span class="bb-icon">🔍</span><span>Explorar</span></button>
+    <button class="bb-btn" data-t="likes" onclick="goTab('likes')"><span class="bb-icon">❤️</span><span>Likes</span></button>
+    <button class="bb-btn" data-t="matches" onclick="goTab('matches')"><span class="bb-icon">💬</span><span>Matches</span></button>
+    <button class="bb-btn" data-t="profile" onclick="goTab('profile')"><span class="bb-icon">👤</span><span>Perfil</span></button>
+  </div>
+</div>
+
+<!-- CHAT VIEW -->
+<div id="chat-view">
+  <div class="cvh">
+    <button class="cvback" onclick="closeChat()">← </button>
+    <img id="cv-av" src="" alt="">
+    <div class="cvh-info"><h4 id="cv-nm"></h4><span>● En línea</span></div>
+    <button style="background:none;border:none;font-size:20px;cursor:pointer" onclick="toast('📹 Iniciando videollamada...')">📹</button>
+    <button style="background:none;border:none;font-size:20px;cursor:pointer" onclick="toast('⋮ Opciones')">⋮</button>
+  </div>
+  <div class="cvmsgs" id="cv-msgs">
+    <div class="msg mi">¡Hola! 😊 ¿Cómo estás?</div>
+    <div class="msg mo">¡Muy bien! Vi tu perfil y me encantó ❤️</div>
+    <div class="msg mi">¡Qué lindo! A mí también me gustó el tuyo 😍</div>
+  </div>
+  <div class="cvinp-bar">
+    <button class="cvact" onclick="toast('GIF 🎞️')">GIF</button>
+    <button class="cvact" onclick="toast('📷 Enviar foto')">📷</button>
+    <input type="text" placeholder="Escribe un mensaje..." id="cv-inp" onkeydown="sendMsg(event)">
+    <button class="cvsend" onclick="sendMsg({key:'Enter'})">➤</button>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+const profiles=[
+  {name:"Valentina",age:24,dist:"3 km",img:"https://randomuser.me/api/portraits/women/1.jpg",bio:"Bailarina y amante de los viajes 🌎",tag:"Viajes · Música"},
+  {name:"Camila",age:22,dist:"5 km",img:"https://randomuser.me/api/portraits/women/2.jpg",bio:"Estudiante de medicina ☕ Amo los gatos",tag:"Salud · Animales"},
+  {name:"Sofía",age:26,dist:"8 km",img:"https://randomuser.me/api/portraits/women/3.jpg",bio:"Diseñadora gráfica y foodie 🍕",tag:"Arte · Gastronomía"},
+  {name:"Isabella",age:23,dist:"2 km",img:"https://randomuser.me/api/portraits/women/4.jpg",bio:"Yoga y meditación 🧘‍♀️ Viajera del alma",tag:"Yoga · Viajes"},
+  {name:"Gabriela",age:25,dist:"11 km",img:"https://randomuser.me/api/portraits/women/5.jpg",bio:"Ingeniera de sistemas 💻 y gamer secreta 🎮",tag:"Tech · Gaming"},
+  {name:"Mariana",age:21,dist:"4 km",img:"https://randomuser.me/api/portraits/women/6.jpg",bio:"Artista 🎨 y café de especialidad ☕",tag:"Arte · Café"},
+  {name:"Daniela",age:27,dist:"6 km",img:"https://randomuser.me/api/portraits/women/7.jpg",bio:"Chef pastelera 🎂 amante de los perros 🐕",tag:"Cocina · Animales"},
+  {name:"Natalia",age:24,dist:"9 km",img:"https://randomuser.me/api/portraits/women/8.jpg",bio:"Cantante indie 🎸 buscando aventuras",tag:"Música · Aventura"},
+  {name:"Alejandra",age:23,dist:"7 km",img:"https://randomuser.me/api/portraits/women/9.jpg",bio:"Fotógrafa y viajera empedernida 📸",tag:"Fotografía · Viajes"},
+  {name:"Paola",age:26,dist:"3 km",img:"https://randomuser.me/api/portraits/women/10.jpg",bio:"Abogada de día, bailarina de noche 💃",tag:"Derecho · Baile"},
+  {name:"Sebastián",age:27,dist:"5 km",img:"https://randomuser.me/api/portraits/men/10.jpg",bio:"Futbolista amateur ⚽ y chef los fines de semana",tag:"Fútbol · Cocina"},
+  {name:"Andrés",age:25,dist:"8 km",img:"https://randomuser.me/api/portraits/men/20.jpg",bio:"Músico 🎸 y explorador de cafeterías ☕",tag:"Música · Café"},
+  {name:"Diego",age:28,dist:"12 km",img:"https://randomuser.me/api/portraits/men/30.jpg",bio:"Arquitecto 🏛️ amante del surf 🏄",tag:"Diseño · Surf"},
+  {name:"Mateo",age:24,dist:"4 km",img:"https://randomuser.me/api/portraits/men/40.jpg",bio:"Emprendedor 💼 y cinéfilo 🎬",tag:"Negocios · Cine"},
+  {name:"Carlos",age:26,dist:"6 km",img:"https://randomuser.me/api/portraits/men/50.jpg",bio:"Médico residente 🏥 y corredor de maratón 🏃",tag:"Salud · Deporte"},
+];
+
+const languages=[
+  ["Afrikáans","Afrikaans"],["Albanés","Shqip"],["Alemán","Deutsch"],["Árabe","العربية"],
+  ["Armenio","Հայerեн"],["Bengalí","বাংলা"],["Búlgaro","Български"],["Catalán","Català"],
+  ["Checo","Čeština"],["Chino","中文"],["Coreano","한국어"],["Danés","Dansk"],
+  ["Eslovaco","Slovenčina"],["Español","Español"],["Estonio","Eesti"],["Filipino","Filipino"],
+  ["Finlandés","Suomi"],["Francés","Français"],["Griego","Ελληνικά"],["Hebreo","עברית"],
+  ["Hindi","हिन्दी"],["Holandés","Nederlands"],["Húngaro","Magyar"],["Indonesio","Bahasa Indonesia"],
+  ["Inglés","English"],["Italiano","Italiano"],["Japonés","日本語"],["Letón","Latviešu"],
+  ["Lituano","Lietuvių"],["Noruego","Norsk"],["Polaco","Polski"],["Portugués","Português"],
+  ["Rumano","Română"],["Ruso","Русский"],["Serbio","Српски"],["Sueco","Svenska"],
+  ["Tailandés","ไทย"],["Turco","Türkçe"],["Ucraniano","Українська"],["Vietnamita","Tiếng Việt"],
+];
+
+let curCard=0, selLang='Español', darkMode=false, toastT;
+
+function init(){
+  buildCards(); buildExplore(); buildLikes(); buildMatches();
+  buildPhotos(); buildLangList('lang-land'); buildLangList('lang-app'); buildNotifs();
+}
+
+// Overlay
+function openOv(id){document.getElementById(id).classList.add('open')}
+function closeOv(id){document.getElementById(id).classList.remove('open')}
+function bgC(e,id){if(e.target.id===id)closeOv(id)}
+
+// Nav
+function goApp(){
+  ['ov-auth','ov-phone','ov-sms','ov-terms','ov-forgot'].forEach(closeOv);
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+}
+function goLanding(){
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('landing').classList.add('active');
+}
+
+// Tabs
+function goTab(t){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  document.querySelectorAll('.bb-btn').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('sec-'+t);
+  if(el)el.classList.add('active');
+  document.querySelector('.app-content').scrollTop=0;
+}
+
+// Cards
+function buildCards(){
+  const stack=document.getElementById('card-stack');
+  stack.innerHTML='';
+  for(let i=0;i<3;i++){
+    const p=profiles[(curCard+i)%profiles.length];
+    const d=document.createElement('div');
+    d.className='scard';
+    if(i===1)d.style.cssText='transform:scale(.97) translateY(14px);z-index:1';
+    else if(i===2)d.style.cssText='transform:scale(.94) translateY(28px);z-index:0';
+    else{d.style.zIndex=10;makeDrag(d);}
+    d.innerHTML=`<img src="${p.img}" alt="${p.name}" loading="lazy">
+      <span class="swipe-label label-like">LIKE</span>
+      <span class="swipe-label label-nope">NOPE</span>
+      <div class="scard-info">
+        <div class="scard-name">${p.name}, ${p.age}</div>
+        <div class="scard-meta">📍 ${p.dist} · ${p.bio}</div>
+        <span class="scard-tag">${p.tag}</span>
+      </div>`;
+    stack.appendChild(d);
+  }
+}
+
+function makeDrag(card){
+  let sx,dragging=false;
+  function gs(e){return e.touches?e.touches[0].clientX:e.clientX}
+  function gc(e){return e.changedTouches?e.changedTouches[0].clientX:e.clientX}
+  card.addEventListener('mousedown',e=>{sx=gs(e);dragging=false});
+  card.addEventListener('touchstart',e=>{sx=gs(e);dragging=false},{passive:true});
+  function mv(e){
+    if(sx===undefined)return;
+    const dx=gs(e)-sx; dragging=true;
+    card.style.transform=`translateX(${dx}px) rotate(${dx*.025}deg)`;
+    card.style.transition='none';
+    card.querySelector('.label-like').style.opacity=Math.max(0,dx/60);
+    card.querySelector('.label-nope').style.opacity=Math.max(0,-dx/60);
+  }
+  document.addEventListener('mousemove',mv);
+  card.addEventListener('touchmove',mv,{passive:true});
+  function up(e){
+    if(sx===undefined)return;
+    const dx=gc(e)-sx;
+    card.style.transition='transform .3s';
+    if(dragging&&Math.abs(dx)>80){
+      card.style.transform=`translateX(${dx>0?700:-700}px) rotate(${dx>0?30:-30}deg)`;
+      setTimeout(()=>{curCard=(curCard+1)%profiles.length;buildCards();},320);
+    }else{card.style.transform='';card.querySelector('.label-like').style.opacity=0;card.querySelector('.label-nope').style.opacity=0;}
+    sx=undefined;dragging=false;
+  }
+  document.addEventListener('mouseup',up);
+  card.addEventListener('touchend',up);
+}
+
+function doSwipe(type){
+  const m={like:'💖 ¡Like!',dislike:'❌ Pasaste',super:'⭐ ¡Super Like!',boost:'⚡ ¡Boost activado!',rewind:'🔄 ¡Volviste atrás!'};
+  toast(m[type]);
+  if(type==='rewind'){curCard=(curCard-1+profiles.length)%profiles.length;buildCards();return;}
+  if(type==='boost')return;
+  curCard=(curCard+1)%profiles.length;buildCards();
+}
+
+// Explore
+function buildExplore(){
+  const g=document.getElementById('ex-grid');
+  g.innerHTML='';
+  profiles.slice(0,12).forEach((p,i)=>{
+    g.innerHTML+=`<div class="excrd" onclick="openChat(${i})">
+      <img src="${p.img}" alt="${p.name}" loading="lazy">
+      <div class="excrd-info"><h4>${p.name}, ${p.age}</h4><span>📍 ${p.dist}</span></div>
+    </div>`;
+  });
+}
+function catSel(el){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+
+// Likes
+function buildLikes(){
+  const g=document.getElementById('lk-grid');
+  g.innerHTML='';
+  profiles.slice(0,8).forEach((p,i)=>{
+    g.innerHTML+=`<div class="lkcrd"><img src="${p.img}" alt="${p.name}"><div class="lkcrd-info"><h4>${p.name}</h4></div><div class="lkbadge">❤️ Like</div></div>`;
+  });
+  const al=document.getElementById('activity-list');
+  al.innerHTML='';
+  profiles.slice(0,5).forEach((p,i)=>{
+    al.innerHTML+=`<div class="crow" onclick="openChat(${i})">
+      <img src="${p.img}" alt="${p.name}">
+      <div class="crow-info"><h4>${p.name}</h4><p>Te dio like hace ${i+1}h</p></div>
+      <div class="cunread"></div>
+    </div>`;
+  });
+}
+
+// Matches
+function buildMatches(){
+  const msgs=["¡Hola! 😊","¿Cómo estás? 💕","¡Me encantó tu perfil!","Holiii 👋","¿Cuándo nos vemos? ☕","¡Qué coincidencia! 😍","¡Eres muy interesante! 🌟"];
+  const row=document.getElementById('nm-row');
+  row.innerHTML='';
+  profiles.slice(0,9).forEach((p,i)=>{
+    row.innerHTML+=`<div class="nmbub" onclick="openChat(${i})"><img src="${p.img}" alt="${p.name}"><p>${p.name}</p></div>`;
+  });
+  const list=document.getElementById('chat-list');
+  list.innerHTML='';
+  profiles.forEach((p,i)=>{
+    list.innerHTML+=`<div class="crow" onclick="openChat(${i})">
+      <img src="${p.img}" alt="${p.name}">
+      <div class="crow-info"><h4>${p.name}</h4><p>${msgs[i%msgs.length]}</p></div>
+      <span class="crow-time">${i+1}h</span>
+    </div>`;
+  });
+}
+
+// Photos
+function buildPhotos(){
+  const g=document.getElementById('ph-grid');
+  g.innerHTML='';
+  for(let i=0;i<9;i++){
+    if(i===0)g.innerHTML+=`<div class="phslot"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="foto"></div>`;
+    else g.innerHTML+=`<div class="phslot" onclick="toast('Agregar foto 📷')">+</div>`;
+  }
+}
+
+function handleFiles(inp){
+  const prev=document.getElementById('file-prev');
+  Array.from(inp.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=document.createElement('img');
+      img.src=e.target.result;
+      img.style.cssText='width:72px;height:72px;border-radius:12px;object-fit:cover;border:2px solid var(--pink)';
+      prev.appendChild(img);
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+// Languages
+function buildLangList(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML='';
+  languages.forEach(([es,nat])=>{
+    const sel=es===selLang;
+    el.innerHTML+=`<div class="langitem ${sel?'sel':''}" onclick="selectLang('${es}','${id}')">
+      <span class="lname">${es}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="lnat">${nat}</span>
+        ${sel?'<span class="lchk">✓</span>':''}
+      </div>
+    </div>`;
+  });
+}
+function selectLang(lang,listId){
+  selLang=lang;
+  buildLangList('lang-land');buildLangList('lang-app');
+  toast(`🌐 Idioma: ${lang}`);
+}
+
+// Notifs
+function buildNotifs(){
+  const list=document.getElementById('notif-list');
+  const items=[
+    {img:profiles[0].img,text:`<b>${profiles[0].name}</b> te dio un Like ❤️`,time:'hace 2 min'},
+    {img:profiles[1].img,text:`¡Match con <b>${profiles[1].name}</b>! 🎉`,time:'hace 15 min'},
+    {img:profiles[2].img,text:`<b>${profiles[2].name}</b> te envió un mensaje 💬`,time:'hace 1h'},
+    {img:profiles[3].img,text:`<b>${profiles[3].name}</b> te dio un Super Like ⭐`,time:'hace 2h'},
+    {img:profiles[4].img,text:'¡Tienes una oferta especial de Bind Gold! 💎',time:'hace 3h'},
+  ];
+  list.innerHTML='';
+  items.forEach(n=>{
+    list.innerHTML+=`<div class="notifitem"><img src="${n.img}" alt=""><div class="notifinfo"><p>${n.text}</p><span>${n.time}</span></div><div class="notifdot"></div></div>`;
+  });
+}
+
+// Chat
+function openChat(i){
+  const p=profiles[i];
+  document.getElementById('cv-av').src=p.img;
+  document.getElementById('cv-nm').textContent=`${p.name}, ${p.age}`;
+  const msgs=document.getElementById('cv-msgs');
+  msgs.innerHTML=`<div class="msg mi">¡Hola! 😊 ¿Cómo estás?</div><div class="msg mo">¡Muy bien! Vi tu perfil y me encantó ❤️</div><div class="msg mi">¡Qué lindo! A mí también me gustó el tuyo 😍</div>`;
+  document.getElementById('chat-view').classList.add('open');
+}
+function closeChat(){document.getElementById('chat-view').classList.remove('open');}
+function sendMsg(e){
+  if(e.key!=='Enter')return;
+  const inp=document.getElementById('cv-inp');
+  const txt=inp.value.trim();if(!txt)return;
+  const msgs=document.getElementById('cv-msgs');
+  const d=document.createElement('div');d.className='msg mo';d.textContent=txt;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;inp.value='';
+  const rep=['😊 ¡Me encanta!','¿Cuándo nos vemos? ☕','¡Qué interesante! 🌟','jajaja 😂','¡Totalmente de acuerdo! 🙌','¡Eres muy divertido/a! 😄'];
+  setTimeout(()=>{const r=document.createElement('div');r.className='msg mi';r.textContent=rep[Math.floor(Math.random()*rep.length)];msgs.appendChild(r);msgs.scrollTop=msgs.scrollHeight;},900);
+}
+
+function toggleDark(){
+  darkMode=!darkMode;
+  document.body.style.background=darkMode?'#1a0a12':'';
+  document.querySelector('.app-content').style.background=darkMode?'#250d18':'';
+}
+
+function toast(msg){
+  const el=document.getElementById('toast-el');
+  el.textContent=msg;el.style.display='block';el.style.opacity='1';
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.style.display='none',300);},1800);
+}
+
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')});
+});
+
+init();
+</script>
+</body>
+</html>
